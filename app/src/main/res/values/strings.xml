@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">AioNote</string>
+    <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+    //FirebaseAuth
+    <string name="web_client_id">967716673220-go9ar8tnpo0292qo89btiv4jpt4lpdfl.apps.googleusercontent.com</string>
+
+    //SplashScreen
+    <string name="splash_title">AioNote is everything you want to achieve, today or in the future</string>
+    <string name="splash_button">Let’s Get Started</string>
+
+    //SignInScreen
+    <string name="lets_login">Let’s Login</string>
+    <string name="sign_in_title">And notes your idea</string>
+    <string name="forgot_pass">Forgot Password</string>
+    <string name="login">Login</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="sign_in_register">Don’t have any account? Register here</string>
+    <string name="email">Email Address</string>
+    <string name="password">Password</string>
+
+    //SignUpScree
+    <string name="sign_up_title">Register</string>
+    <string name="sign_up_sub_title">And start taking notes</string>
+    <string name="full_name">Full Name</string>
+    <string name="retype_pass">Retype Password</string>
+    <string name="register_with_google">Register with Google</string>
+    <string name="sign_up_login">Already have an account? Login here</string>
+
+
+</resources>

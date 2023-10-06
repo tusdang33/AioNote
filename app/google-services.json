@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "967716673220",
+    "project_id": "aionote",
+    "storage_bucket": "aionote.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967716673220:android:f8375667db9386d0751b91",
+        "android_client_info": {
+          "package_name": "com.notes.aionote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967716673220-3lbahcslr3ji0ilfk4g6etpt69ncgb42.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.notes.aionote",
+            "certificate_hash": "94e8bd5f10a7313789fab24ab91bcda1e4165f6f"
+          }
+        },
+        {
+          "client_id": "967716673220-go9ar8tnpo0292qo89btiv4jpt4lpdfl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzDjnk1bR683rvTfGJYggjZV5mCVf1KqY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967716673220-go9ar8tnpo0292qo89btiv4jpt4lpdfl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
