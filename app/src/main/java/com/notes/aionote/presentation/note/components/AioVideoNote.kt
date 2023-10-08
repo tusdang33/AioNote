@@ -102,7 +102,7 @@ fun AioVideoNote(
 			showToolbar = showToolbar,
 			onItemClick =  {
 				showToolbar = false
-				onToolbarItemClick.invoke(it)
+				onToolbarItemClick.invoke(it as NoteToolbarItem)
 			}
 		)
 	}

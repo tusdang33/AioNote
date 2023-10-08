@@ -47,8 +47,10 @@ import com.notes.aionote.presentation.note.components.AioNotePicker
 import com.notes.aionote.presentation.note.components.AioNoteTitle
 import com.notes.aionote.presentation.note.components.AioTextNote
 import com.notes.aionote.presentation.note.components.AioVoiceNote
+import com.notes.aionote.presentation.note.components.ImagePickerToolbarItem
 import com.notes.aionote.presentation.note.components.NoteOption
 import com.notes.aionote.presentation.note.components.NoteToolbarItem
+import com.notes.aionote.presentation.note.components.VideoPickerToolbarItem
 import com.notes.aionote.ui.component.AioActionBar
 import com.notes.aionote.ui.theme.AioComposeTheme
 import com.notes.aionote.ui.theme.AioTheme
@@ -256,16 +258,24 @@ fun NoteScreen(
 		AioNotePicker(
 			options = NoteOption.values().toList(),
 			holdingNoteOption = holdingNoteOption,
-			onOptionClick = {
-				when (it) {
-					NoteOption.IMAGE -> {
+			onToolbarItemClick = {
+				when(it) {
+					ImagePickerToolbarItem.IMAGE -> {
 						onEvent(NoteEvent.PickImage)
 					}
-					
-					NoteOption.VIDEO -> {
+					ImagePickerToolbarItem.CAMERA -> {
+						onEvent(NoteEvent.PickCamera)
+					}
+					VideoPickerToolbarItem.VIDEO -> {
 						onEvent(NoteEvent.PickVideo)
 					}
-					
+					VideoPickerToolbarItem.RECORD -> {
+						onEvent(NoteEvent.PickRecord)
+					}
+				}
+			},
+			onOptionClick = {
+				when (it) {
 					NoteOption.VOICE -> {
 						if (holdingNoteOption == null) {
 							holdingNoteOption = it
@@ -280,13 +290,7 @@ fun NoteScreen(
 						onEvent(NoteEvent.AddCheckBox)
 					}
 					
-					NoteOption.CAMERA -> {
-						onEvent(NoteEvent.PickCamera)
-					}
-					
-					NoteOption.RECORD -> {
-						onEvent(NoteEvent.PickRecord)
-					}
+					else -> { /*noop*/ }
 				}
 			}
 		)

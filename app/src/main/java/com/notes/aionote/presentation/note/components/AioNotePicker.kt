@@ -1,5 +1,6 @@
 package com.notes.aionote.presentation.note.components
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -29,10 +30,23 @@ fun AioNotePicker(
 	modifier: Modifier = Modifier,
 	options: List<NoteOption>,
 	holdingNoteOption: NoteOption?,
+	onToolbarItemClick: (NoteToolBar) -> Unit,
 	onOptionClick: (NoteOption) -> Unit
 ) {
+	var toolbarItem : List<NoteToolBar> by remember {
+		mutableStateOf(listOf())
+	}
+	
 	Column(modifier = modifier.requiredHeightIn(min = 48.dp)) {
 		Divider()
+		AioNoteToolbar(
+			modifier = Modifier.fillMaxWidth(),
+			toolbarItem = toolbarItem,
+			onItemClick = onToolbarItemClick,
+			showToolbar = toolbarItem.isNotEmpty(),
+			elevation = 0.dp
+		)
+		
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
@@ -44,6 +58,15 @@ fun AioNotePicker(
 				AioIconButton(
 					modifier = Modifier.weight(1f),
 					onClick = {
+						toolbarItem = if ((it == NoteOption.IMAGE || it == NoteOption.VIDEO) && toolbarItem.isEmpty() ) {
+							when (it) {
+								NoteOption.IMAGE -> ImagePickerToolbarItem.values().toList()
+								NoteOption.VIDEO -> VideoPickerToolbarItem.values().toList()
+								else -> listOf()
+							}
+						} else {
+							listOf()
+						}
 						onOptionClick.invoke(it)
 					}
 				) {
@@ -70,9 +93,7 @@ enum class NoteOption(
 	),
 	CHECK(R.drawable.check_outline),
 	IMAGE(R.drawable.photograph_outline),
-	CAMERA(R.drawable.camera_outline),
-	VIDEO(R.drawable.film_outline),
-	RECORD(R.drawable.video_camera_outline),
+	VIDEO(R.drawable.film_outline)
 }
 
 @Preview
@@ -82,7 +103,10 @@ private fun PreviewAioNotePicker() {
 		AioNotePicker(
 			options = NoteOption.values().toList(),
 			onOptionClick = {},
-			holdingNoteOption = null
+			holdingNoteOption = null,
+			onToolbarItemClick = {
+			
+			}
 		)
 	}
 }

@@ -41,32 +41,3 @@ fun Long.formatTimestamp(pattern: String = yearTimePattern): String {
 	}
 	
 }
-
-fun DrawScope.draw() {
-	drawLine(
-		color= Color.Magenta,
-		start = Offset(10f,10f),
-		end = Offset(0f, 200f),
-		strokeWidth = 12f,
-		cap = StrokeCap.Round
-	)
-}
-
-@Composable
-fun Test() {
-	Box(
-		modifier = Modifier
-			.size(400.dp)
-			.drawBehind {
-			draw()
-		}
-	) {
-	
-	}
-}
-
-@Preview
-@Composable
-fun hehe() {
-	Test()
-}
