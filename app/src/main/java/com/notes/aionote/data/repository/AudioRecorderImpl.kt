@@ -5,8 +5,8 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.core.net.toUri
+import com.notes.aionote.common.Resource
 import com.notes.aionote.domain.repository.AudioRecorder
 import java.io.File
 import java.io.FileOutputStream
@@ -41,11 +41,17 @@ class AudioRecorderImpl @Inject constructor(
 		}
 	}
 	
-	override fun getAudioDuration(uri: Uri): Long {
-		val mediaMetadataRetriever = MediaMetadataRetriever();
-		mediaMetadataRetriever.setDataSource(context, uri);
-		return mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-			?.toLong() ?: 0L
+	override fun getAudioDuration(uri: Uri): Resource<Long> {
+		return try {
+			val mediaMetadataRetriever = MediaMetadataRetriever()
+			mediaMetadataRetriever.setDataSource(context, uri)
+			Resource.Success(
+				mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+					?.toLong() ?: 0L
+			)
+		} catch (e: Exception) {
+			Resource.Fail(errorMessage = e.message)
+		}
 	}
 	
 	override fun stopRecord() {
