@@ -2,6 +2,7 @@ package com.notes.aionote.data.model
 
 import android.net.Uri
 import androidx.core.net.toUri
+import com.notes.aionote.common.success
 import com.notes.aionote.domain.data.NoteContentEntity
 import com.notes.aionote.domain.repository.AudioRecorder
 
@@ -26,7 +27,7 @@ data class MediaNote(
 ): NoteContent
 
 enum class MediaType {
-	IMAGE, VIDEO, VOICE
+	IMAGE, VIDEO, VOICE, ATTACHMENT
 }
 
 fun NoteContentEntity.toNoteContent(audioRecorder: AudioRecorder? = null): NoteContent {
@@ -47,9 +48,13 @@ fun NoteContentEntity.toNoteContent(audioRecorder: AudioRecorder? = null): NoteC
 				MediaNote(
 					mediaType = MediaType.VOICE,
 					mediaPath = this.mediaPath ?: "",
-					mediaDuration = audioRecorder?.getAudioDuration(
-						this.mediaPath?.toUri() ?: Uri.EMPTY
-					)
+					mediaDuration = run {
+						audioRecorder?.getAudioDuration(this.mediaPath?.toUri() ?: Uri.EMPTY)
+							?.success {
+								return@run it
+							}
+						null
+					}
 				)
 			} else {
 				MediaNote(
@@ -104,6 +109,10 @@ fun Int.toTypeMediaType(): MediaType {
 		
 		2 -> {
 			MediaType.VOICE
+		}
+		
+		3 -> {
+			MediaType.ATTACHMENT
 		}
 		
 		else -> MediaType.IMAGE

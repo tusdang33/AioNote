@@ -1,6 +1,7 @@
 package com.notes.aionote.presentation.note.normal_note
 
 import AioVideoNote
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -30,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notes.aionote.FileProviderHelper
@@ -37,11 +39,13 @@ import com.notes.aionote.R
 import com.notes.aionote.collectInLaunchedEffectWithLifecycle
 import com.notes.aionote.data.model.CheckNote
 import com.notes.aionote.data.model.MediaNote
+import com.notes.aionote.data.model.MediaType.ATTACHMENT
 import com.notes.aionote.data.model.MediaType.IMAGE
 import com.notes.aionote.data.model.MediaType.VIDEO
 import com.notes.aionote.data.model.MediaType.VOICE
 import com.notes.aionote.data.model.TextNote
 import com.notes.aionote.grantReadPermissionToUri
+import com.notes.aionote.presentation.note.components.AioAttachmentNote
 import com.notes.aionote.presentation.note.components.AioCheckNote
 import com.notes.aionote.presentation.note.components.AioImageNote
 import com.notes.aionote.presentation.note.components.AioLottieVoice
@@ -56,6 +60,8 @@ import com.notes.aionote.presentation.note.components.VideoPickerToolbarItem
 import com.notes.aionote.ui.component.AioActionBar
 import com.notes.aionote.ui.theme.AioComposeTheme
 import com.notes.aionote.ui.theme.AioTheme
+import com.notes.aionote.viewDocument
+import java.io.File
 
 @Composable
 fun NoteRoute(
@@ -100,6 +106,16 @@ fun NoteRoute(
 			noteViewModel.onEvent(NoteEvent.AddVideo(cameraUri))
 		}
 	}
+	
+	val attachmentLauncher = rememberLauncherForActivityResult(
+		contract = ActivityResultContracts.OpenDocument()
+	) { uri ->
+		uri?.let {
+			grantReadPermissionToUri(context, it)
+			noteViewModel.onEvent(NoteEvent.AddAttachment(it))
+		}
+	}
+	
 	NoteScreen(
 		modifier = Modifier.fillMaxSize(),
 		noteUiState = noteUiState,
@@ -131,6 +147,10 @@ fun NoteRoute(
 				recordLauncher.launch(cameraUri)
 			}
 			
+			NoteOneTimeEvent.PickAttachment -> {
+				attachmentLauncher.launch(arrayOf("*/*"))
+			}
+			
 			else -> {/*noop*/
 			}
 		}
@@ -142,6 +162,7 @@ fun NoteScreen(
 	modifier: Modifier = Modifier,
 	onBackClick: () -> Unit,
 	noteUiState: NoteUiState,
+	context: Context = LocalContext.current,
 	onEvent: (NoteEvent) -> Unit,
 ) {
 	val lazyState = rememberLazyListState()
@@ -254,6 +275,18 @@ fun NoteScreen(
 									}
 								)
 							}
+							
+							ATTACHMENT -> {
+								AioAttachmentNote(
+									attachment = File(note.mediaPath.toUri().path ?: ""),
+									onViewFile = {
+										viewDocument(context, note.mediaPath.toUri())
+									},
+									onDeleteClick = {
+										onEvent(NoteEvent.DeleteItem(index))
+									}
+								)
+							}
 						}
 					}
 				}
@@ -300,7 +333,12 @@ fun NoteScreen(
 						onEvent(NoteEvent.AddCheckBox)
 					}
 					
-					else -> { /*noop*/ }
+					NoteOption.ATTACHMENT -> {
+						onEvent(NoteEvent.PickAttachment)
+					}
+					
+					else -> { /*noop*/
+					}
 				}
 			}
 		)

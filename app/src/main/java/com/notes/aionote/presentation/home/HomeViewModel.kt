@@ -1,5 +1,6 @@
 package com.notes.aionote.presentation.home
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
@@ -10,6 +11,8 @@ import com.notes.aionote.common.Dispatcher
 import com.notes.aionote.common.NoteRepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
+import com.notes.aionote.common.fail
+import com.notes.aionote.common.success
 import com.notes.aionote.data.model.Note
 import com.notes.aionote.data.model.toNote
 import com.notes.aionote.domain.repository.AudioRecorder
@@ -39,30 +42,25 @@ class HomeViewModel @Inject constructor(
 	
 	init {
 		fetchNoteData()
-//		fetchTaskData()
 	}
 	
 	private fun fetchNoteData() = viewModelScope.launch(ioDispatcher) {
-		localNoteRepository.getAllNote().collect { task ->
-			withContext(mainDispatcher) {
-				_homeUiState.update { uiState ->
-					uiState.copy(
-						listTask = task.filter { it.noteType == 2 } .map { it.toNote(audioRecorder) }.toMutableStateList(),
-						listNote = task.filter { it.noteType == 1 } .map { it.toNote(audioRecorder) }.toMutableStateList(),
-					)
+		localNoteRepository.getAllNote().collect { note ->
+			note.success { listNoteEntity ->
+				withContext(mainDispatcher) {
+					_homeUiState.update { uiState ->
+						uiState.copy(
+							listTask = listNoteEntity?.filter { it.noteType == 2 }
+								?.map { it.toNote(audioRecorder) }
+								?.toMutableStateList() ?: mutableStateListOf(),
+							listNote = listNoteEntity?.filter { it.noteType == 1 }
+								?.map { it.toNote(audioRecorder) }
+								?.toMutableStateList() ?: mutableStateListOf(),
+						)
+					}
 				}
-			}
-		}
-	}
-	
-	private fun fetchTaskData() = viewModelScope.launch(ioDispatcher) {
-		localNoteRepository.getAllTask().collect { task ->
-			withContext(mainDispatcher) {
-				_homeUiState.update { uiState ->
-					uiState.copy(
-						listTask = task.map { it.toNote(audioRecorder) }.toMutableStateList()
-					)
-				}
+			}.fail {
+				failHandle(it)
 			}
 		}
 	}

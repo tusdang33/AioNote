@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.notes.aionote.R
 import com.notes.aionote.data.model.CheckNote
@@ -45,6 +45,7 @@ import com.notes.aionote.ui.component.AioCornerCard
 import com.notes.aionote.ui.theme.AioComposeTheme
 import com.notes.aionote.ui.theme.AioTheme
 import com.notes.aionote.yearTimePattern
+import java.io.File
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -140,6 +141,15 @@ fun AioNotePreview(
 										enabled = false,
 										textStyle = AioTheme.regularTypography.xs,
 										isPlaying = noteContent.isPlaying,
+									)
+								}
+								
+								MediaType.ATTACHMENT -> {
+									AioAttachmentNote(
+										readOnly = true,
+										attachment = File(
+											noteContent.mediaPath.toUri().path ?: ""
+										)
 									)
 								}
 							}

@@ -1,8 +1,10 @@
 package com.notes.aionote
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 @Suppress("ComposableNaming")
 @Composable
@@ -52,18 +56,13 @@ fun grantReadPermissionToUri(
 	)
 }
 
-fun createUriForMedia(context: Context): Uri {
-	val directory = File(context.cacheDir, "image")
-	directory.mkdirs()
-	val file = File.createTempFile(
-		"temp_image_",
-		".jpg",
-		directory,
-	)
-	val authority = context.packageName + ".fileprovider"
-	return FileProvider.getUriForFile(
-		context,
-		authority,
-		file,
-	)
+fun viewDocument(context: Context, uri: Uri) {
+	val intent = Intent(Intent.ACTION_VIEW)
+	intent.data = uri
+	intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+	
+	try {
+		context.startActivity(intent)
+	} catch (e: ActivityNotFoundException) {
+	}
 }

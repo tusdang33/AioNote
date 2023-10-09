@@ -12,6 +12,8 @@ import com.notes.aionote.common.Dispatcher
 import com.notes.aionote.common.NoteRepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
+import com.notes.aionote.common.fail
+import com.notes.aionote.common.success
 import com.notes.aionote.data.model.CheckNote
 import com.notes.aionote.data.model.MediaNote
 import com.notes.aionote.data.model.MediaType
@@ -56,19 +58,24 @@ class NoteViewModel @Inject constructor(
 	
 	init {
 		if (currentNoteId != "null") {
-			val note = noteRepository.getNoteById(currentNoteId)?.toNote(audioRecorder)
-			if (note != null) {
-				_noteUiState.update { uiState ->
-					uiState.copy(
-						title = note.title,
-						currentTime = note.createTime,
-						listNote = uiState.listNote.apply {
-							clear()
-							addNotes(note.notes)
-						}
-					)
+			noteRepository.getNoteById(currentNoteId).success {
+				val note = it?.toNote(audioRecorder)
+				if (note != null) {
+					_noteUiState.update { uiState ->
+						uiState.copy(
+							title = note.title,
+							currentTime = note.createTime,
+							listNote = uiState.listNote.apply {
+								clear()
+								addNotes(note.notes)
+							}
+						)
+					}
 				}
+			}.fail {
+				failHandle(it)
 			}
+			
 		}
 	}
 	
@@ -106,6 +113,10 @@ class NoteViewModel @Inject constructor(
 				sendEvent(NoteOneTimeEvent.PickVideo)
 			}
 			
+			NoteEvent.PickAttachment -> {
+				sendEvent(NoteOneTimeEvent.PickAttachment)
+			}
+			
 			NoteEvent.StartRecord -> {
 				audioPlayer.stop()
 				audioRecorder.startRecord {
@@ -115,13 +126,24 @@ class NoteViewModel @Inject constructor(
 			
 			NoteEvent.StopRecord -> {
 				audioRecorder.stopRecord()
-				addNotes(listOf(
-					MediaNote(
-						mediaType = MediaType.VOICE,
-						mediaPath = tempVoiceUri.toString(),
-						mediaDuration = tempVoiceUri?.let { audioRecorder.getAudioDuration(it) }
+				addNotes(
+					listOf(
+						MediaNote(
+							mediaType = MediaType.VOICE,
+							mediaPath = tempVoiceUri.toString(),
+							mediaDuration = run {
+								tempVoiceUri?.let { uri ->
+									audioRecorder.getAudioDuration(uri).success {
+										return@run it
+									}.fail {
+										failHandle(it)
+									}
+								}
+								null
+							}
+						)
 					)
-				))
+				)
 			}
 			
 			NoteEvent.AddCheckBox -> {
@@ -144,6 +166,17 @@ class NoteViewModel @Inject constructor(
 					listOf(
 						MediaNote(
 							mediaType = MediaType.VIDEO,
+							mediaPath = event.path.toString()
+						)
+					)
+				)
+			}
+			
+			is NoteEvent.AddAttachment -> {
+				addNotes(
+					listOf(
+						MediaNote(
+							mediaType = MediaType.ATTACHMENT,
 							mediaPath = event.path.toString()
 						)
 					)
@@ -208,15 +241,19 @@ class NoteViewModel @Inject constructor(
 					}
 					audioPlayer.stop()
 					audioPlayer.playFile(note.mediaPath.toUri())
-					audioPlayer.getPlayingAudio()?.setOnCompletionListener {
-						audioPlayer.stop()
-						_noteUiState.update {
-							it.copy(
-								listNote = it.listNote.apply {
-									set(event.index, note.copy(isPlaying = false))
-								}
-							)
+					audioPlayer.getPlayingAudio().success { mediaPlayer ->
+						mediaPlayer?.setOnCompletionListener {
+							audioPlayer.stop()
+							_noteUiState.update {
+								it.copy(
+									listNote = it.listNote.apply {
+										set(event.index, note.copy(isPlaying = false))
+									}
+								)
+							}
 						}
+					}.fail {
+						failHandle(it)
 					}
 				}
 			}
@@ -317,7 +354,7 @@ sealed interface NoteOneTimeEvent: RootState.OneTimeEvent<NoteUiState> {
 	data class Fail(val errorMessage: String? = null): NoteOneTimeEvent
 	object PickImage: NoteOneTimeEvent
 	object PickVideo: NoteOneTimeEvent
-	object PickVoice: NoteOneTimeEvent
+	object PickAttachment: NoteOneTimeEvent
 	object PickCamera: NoteOneTimeEvent
 	object PickRecord: NoteOneTimeEvent
 }
@@ -330,6 +367,7 @@ sealed class NoteEvent: RootState.ViewEvent {
 	object PickCamera: NoteEvent()
 	object PickRecord: NoteEvent()
 	object PickVideo: NoteEvent()
+	object PickAttachment: NoteEvent()
 	object AddCheckBox: NoteEvent()
 	data class OnTextChange(
 		val index: Int,
@@ -343,6 +381,7 @@ sealed class NoteEvent: RootState.ViewEvent {
 	
 	data class AddImage(val path: Uri): NoteEvent()
 	data class AddVideo(val path: Uri): NoteEvent()
+	data class AddAttachment(val path: Uri): NoteEvent()
 	data class DeleteItem(val index: Int): NoteEvent()
 	data class PlayItem(
 		val index: Int,

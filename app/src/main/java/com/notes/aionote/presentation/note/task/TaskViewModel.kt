@@ -8,6 +8,7 @@ import com.notes.aionote.common.Dispatcher
 import com.notes.aionote.common.NoteRepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
+import com.notes.aionote.common.success
 import com.notes.aionote.data.model.CheckNote
 import com.notes.aionote.data.model.toNote
 import com.notes.aionote.data.model.toNoteContentEntity
@@ -43,16 +44,19 @@ class TaskViewModel @Inject constructor(
 	
 	init {
 		if (currentTaskId != "null") {
-			val note = noteRepository.getNoteById(currentTaskId)?.toNote()
-			if (note != null) {
-				_taskUiState.update { uiState ->
-					uiState.copy(
-						checked = (note.notes.firstOrNull() as CheckNote).checked,
-						content = (note.notes.firstOrNull() as CheckNote).content,
-						deadline = note.deadLine,
-					)
+			noteRepository.getNoteById(currentTaskId).success { noteEntity ->
+				val note = noteEntity?.toNote()
+				if (note != null) {
+					_taskUiState.update { uiState ->
+						uiState.copy(
+							checked = (note.notes.firstOrNull() as CheckNote).checked,
+							content = (note.notes.firstOrNull() as CheckNote).content,
+							deadline = note.deadLine,
+						)
+					}
 				}
 			}
+			
 		}
 	}
 	

@@ -93,7 +93,8 @@ enum class NoteOption(
 	),
 	CHECK(R.drawable.check_outline),
 	IMAGE(R.drawable.photograph_outline),
-	VIDEO(R.drawable.film_outline)
+	VIDEO(R.drawable.film_outline),
+	ATTACHMENT(R.drawable.paper_clip_outline)
 }
 
 @Preview
