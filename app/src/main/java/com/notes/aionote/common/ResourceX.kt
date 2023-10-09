@@ -4,11 +4,10 @@ sealed class Resource<T>(
 	val result: T? = null,
 	val errorMessage: String? = null
 ) {
-	class Success<T>(result: T) : Resource<T>(result)
+	class Success<T>(result: T): Resource<T>(result)
 	class Fail<T>(
-		result: T? = null,
 		errorMessage: String?
-	) : Resource<T>(result, errorMessage)
+	): Resource<T>(errorMessage = errorMessage)
 }
 
 inline fun <reified T> Resource<T>.success(result: (T?) -> Unit): Resource<T> {
