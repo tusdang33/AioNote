@@ -1,5 +1,6 @@
 package com.notes.aionote.presentation.home
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
@@ -10,6 +11,8 @@ import com.notes.aionote.common.Dispatcher
 import com.notes.aionote.common.NoteRepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
+import com.notes.aionote.common.fail
+import com.notes.aionote.common.success
 import com.notes.aionote.data.model.Note
 import com.notes.aionote.data.model.toNote
 import com.notes.aionote.domain.repository.AudioRecorder
@@ -38,17 +41,26 @@ class HomeViewModel @Inject constructor(
 	override val uiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
 	
 	init {
-		fetchHomeData()
+		fetchNoteData()
 	}
 	
-	private fun fetchHomeData() = viewModelScope.launch(ioDispatcher) {
-		localNoteRepository.getAllNote().collect { notes ->
-			withContext(mainDispatcher) {
-				_homeUiState.update { uiState ->
-					uiState.copy(
-						listNote = notes.map { it.toNote(audioRecorder) }.toMutableStateList()
-					)
+	private fun fetchNoteData() = viewModelScope.launch(ioDispatcher) {
+		localNoteRepository.getAllNote().collect { note ->
+			note.success { listNoteEntity ->
+				withContext(mainDispatcher) {
+					_homeUiState.update { uiState ->
+						uiState.copy(
+							listTask = listNoteEntity?.filter { it.noteType == 2 }
+								?.map { it.toNote(audioRecorder) }
+								?.toMutableStateList() ?: mutableStateListOf(),
+							listNote = listNoteEntity?.filter { it.noteType == 1 }
+								?.map { it.toNote(audioRecorder) }
+								?.toMutableStateList() ?: mutableStateListOf(),
+						)
+					}
 				}
+			}.fail {
+				failHandle(it)
 			}
 		}
 	}
@@ -70,21 +82,39 @@ class HomeViewModel @Inject constructor(
 				sendEvent(HomeOneTimeEvent.NavigateToNote(event.noteId))
 			}
 			
-			is HomeEvent.DeleteItem -> {
+			is HomeEvent.DeleteNote -> {
 				removeNote(event.index)
 			}
+			
+			is HomeEvent.DeleteTask -> {
+				removeTask(event.index)
+			}
+			
+			is HomeEvent.ChangePage -> {
+				sendEvent(HomeOneTimeEvent.ChangeCurrentPage(event.index))
+			}
+			
+			is HomeEvent.NavigateToEditTask -> {
+				sendEvent(HomeOneTimeEvent.NavigateToTask(event.taskId))
+			}
+			
 		}
 	}
 	
 	private fun removeNote(index: Int) = viewModelScope.launch {
 		localNoteRepository.deleteNote(_homeUiState.value.listNote[index].noteId)
 	}
+	
+	private fun removeTask(index: Int) = viewModelScope.launch {
+		localNoteRepository.deleteNote(_homeUiState.value.listTask[index].noteId)
+	}
 }
 
 data class HomeUiState(
 	override val isLoading: Boolean = false,
 	override val errorMessage: String? = null,
-	val listNote: SnapshotStateList<Note> = mutableStateListOf()
+	val listNote: SnapshotStateList<Note> = mutableStateListOf(),
+	val listTask: SnapshotStateList<Note> = mutableStateListOf()
 ): RootState.ViewUiState
 
 sealed interface HomeOneTimeEvent: RootState.OneTimeEvent<HomeUiState> {
@@ -112,10 +142,15 @@ sealed interface HomeOneTimeEvent: RootState.OneTimeEvent<HomeUiState> {
 	object Loading: HomeOneTimeEvent
 	object Success: HomeOneTimeEvent
 	data class NavigateToNote(val noteId: String): HomeOneTimeEvent
+	data class NavigateToTask(val noteId: String): HomeOneTimeEvent
+	data class ChangeCurrentPage(val page: Int): HomeOneTimeEvent
 	data class Fail(val errorMessage: String? = null): HomeOneTimeEvent
 }
 
 sealed class HomeEvent: RootState.ViewEvent {
 	data class NavigateToEditNote(val noteId: String): HomeEvent()
-	data class DeleteItem(val index: Int): HomeEvent()
+	data class NavigateToEditTask(val taskId: String): HomeEvent()
+	data class DeleteNote(val index: Int): HomeEvent()
+	data class DeleteTask(val index: Int): HomeEvent()
+	data class ChangePage(val index: Int): HomeEvent()
 }

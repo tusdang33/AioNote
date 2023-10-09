@@ -1,8 +1,8 @@
-package com.notes.aionote.presentation.note
+package com.notes.aionote.presentation.note.normal_note
 
 import AioVideoNote
+import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,20 +26,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notes.aionote.FileProviderHelper
+import com.notes.aionote.R
 import com.notes.aionote.collectInLaunchedEffectWithLifecycle
 import com.notes.aionote.data.model.CheckNote
 import com.notes.aionote.data.model.MediaNote
+import com.notes.aionote.data.model.MediaType.ATTACHMENT
 import com.notes.aionote.data.model.MediaType.IMAGE
 import com.notes.aionote.data.model.MediaType.VIDEO
 import com.notes.aionote.data.model.MediaType.VOICE
 import com.notes.aionote.data.model.TextNote
 import com.notes.aionote.grantReadPermissionToUri
+import com.notes.aionote.presentation.note.components.AioAttachmentNote
 import com.notes.aionote.presentation.note.components.AioCheckNote
 import com.notes.aionote.presentation.note.components.AioImageNote
 import com.notes.aionote.presentation.note.components.AioLottieVoice
@@ -47,11 +53,15 @@ import com.notes.aionote.presentation.note.components.AioNotePicker
 import com.notes.aionote.presentation.note.components.AioNoteTitle
 import com.notes.aionote.presentation.note.components.AioTextNote
 import com.notes.aionote.presentation.note.components.AioVoiceNote
+import com.notes.aionote.presentation.note.components.ImagePickerToolbarItem
 import com.notes.aionote.presentation.note.components.NoteOption
 import com.notes.aionote.presentation.note.components.NoteToolbarItem
+import com.notes.aionote.presentation.note.components.VideoPickerToolbarItem
 import com.notes.aionote.ui.component.AioActionBar
 import com.notes.aionote.ui.theme.AioComposeTheme
 import com.notes.aionote.ui.theme.AioTheme
+import com.notes.aionote.viewDocument
+import java.io.File
 
 @Composable
 fun NoteRoute(
@@ -96,6 +106,16 @@ fun NoteRoute(
 			noteViewModel.onEvent(NoteEvent.AddVideo(cameraUri))
 		}
 	}
+	
+	val attachmentLauncher = rememberLauncherForActivityResult(
+		contract = ActivityResultContracts.OpenDocument()
+	) { uri ->
+		uri?.let {
+			grantReadPermissionToUri(context, it)
+			noteViewModel.onEvent(NoteEvent.AddAttachment(it))
+		}
+	}
+	
 	NoteScreen(
 		modifier = Modifier.fillMaxSize(),
 		noteUiState = noteUiState,
@@ -127,6 +147,10 @@ fun NoteRoute(
 				recordLauncher.launch(cameraUri)
 			}
 			
+			NoteOneTimeEvent.PickAttachment -> {
+				attachmentLauncher.launch(arrayOf("*/*"))
+			}
+			
 			else -> {/*noop*/
 			}
 		}
@@ -138,6 +162,7 @@ fun NoteScreen(
 	modifier: Modifier = Modifier,
 	onBackClick: () -> Unit,
 	noteUiState: NoteUiState,
+	context: Context = LocalContext.current,
 	onEvent: (NoteEvent) -> Unit,
 ) {
 	val lazyState = rememberLazyListState()
@@ -153,7 +178,7 @@ fun NoteScreen(
 				onBackClick.invoke()
 			}
 		) {
-			Text(text = "New Note")
+			Text(text = stringResource(id = R.string.new_note))
 		}
 		
 		AioNoteTitle(
@@ -164,6 +189,9 @@ fun NoteScreen(
 				onEvent(NoteEvent.OnTitleChange(it))
 			}
 		)
+		val focusRequester by remember {
+			mutableStateOf(FocusRequester())
+		}
 		
 		LazyColumn(
 			modifier = Modifier
@@ -172,7 +200,11 @@ fun NoteScreen(
 					indication = null,
 					enabled = true,
 					onClick = {
-						Log.e("tudm", "NoteScreen clcikc ")
+						try {
+							focusRequester.requestFocus()
+						} catch (e: Exception) {
+							/* ignore focus */
+						}
 					}
 				)
 				.background(AioTheme.neutralColor.white)
@@ -192,7 +224,8 @@ fun NoteScreen(
 							},
 							onDeleteCheckbox = {
 								onEvent(NoteEvent.DeleteItem(index))
-							}
+							},
+							focusRequester = focusRequester
 						)
 					}
 					
@@ -242,6 +275,18 @@ fun NoteScreen(
 									}
 								)
 							}
+							
+							ATTACHMENT -> {
+								AioAttachmentNote(
+									attachment = File(note.mediaPath.toUri().path ?: ""),
+									onViewFile = {
+										viewDocument(context, note.mediaPath.toUri())
+									},
+									onDeleteClick = {
+										onEvent(NoteEvent.DeleteItem(index))
+									}
+								)
+							}
 						}
 					}
 				}
@@ -256,16 +301,24 @@ fun NoteScreen(
 		AioNotePicker(
 			options = NoteOption.values().toList(),
 			holdingNoteOption = holdingNoteOption,
-			onOptionClick = {
-				when (it) {
-					NoteOption.IMAGE -> {
+			onToolbarItemClick = {
+				when(it) {
+					ImagePickerToolbarItem.IMAGE -> {
 						onEvent(NoteEvent.PickImage)
 					}
-					
-					NoteOption.VIDEO -> {
+					ImagePickerToolbarItem.CAMERA -> {
+						onEvent(NoteEvent.PickCamera)
+					}
+					VideoPickerToolbarItem.VIDEO -> {
 						onEvent(NoteEvent.PickVideo)
 					}
-					
+					VideoPickerToolbarItem.RECORD -> {
+						onEvent(NoteEvent.PickRecord)
+					}
+				}
+			},
+			onOptionClick = {
+				when (it) {
 					NoteOption.VOICE -> {
 						if (holdingNoteOption == null) {
 							holdingNoteOption = it
@@ -280,12 +333,11 @@ fun NoteScreen(
 						onEvent(NoteEvent.AddCheckBox)
 					}
 					
-					NoteOption.CAMERA -> {
-						onEvent(NoteEvent.PickCamera)
+					NoteOption.ATTACHMENT -> {
+						onEvent(NoteEvent.PickAttachment)
 					}
 					
-					NoteOption.RECORD -> {
-						onEvent(NoteEvent.PickRecord)
+					else -> { /*noop*/
 					}
 				}
 			}

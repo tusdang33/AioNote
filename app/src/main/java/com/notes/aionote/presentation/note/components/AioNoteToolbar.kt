@@ -1,5 +1,6 @@
 package com.notes.aionote.presentation.note.components
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
@@ -27,10 +28,10 @@ import com.notes.aionote.ui.theme.AioTheme
 @Composable
 fun AioNoteToolbar(
 	modifier: Modifier = Modifier,
-	toolbarItem: List<NoteToolbarItem>,
+	toolbarItem: List<NoteToolBar>,
 	showToolbar: Boolean = false,
 	elevation: Dp = 5.dp,
-	onItemClick: (NoteToolbarItem) -> Unit
+	onItemClick: (NoteToolBar) -> Unit
 ) {
 	AnimatedVisibility(
 		visible = showToolbar,
@@ -39,7 +40,7 @@ fun AioNoteToolbar(
 	) {
 		Row(
 			modifier = modifier
-				.shadow(elevation,RoundedCornerShape(12.dp))
+				.shadow(elevation, RoundedCornerShape(12.dp))
 				.background(AioTheme.neutralColor.white),
 			horizontalArrangement = Arrangement.SpaceAround
 		) {
@@ -58,11 +59,33 @@ fun AioNoteToolbar(
 	}
 }
 
-enum class NoteToolbarItem(
-	@DrawableRes
-	val icon: Int,
-) {
-	DELETE(R.drawable.trash_outline),
+enum class NoteToolbarItem: NoteToolBar {
+	DELETE {
+		override val icon: Int = R.drawable.trash_outline
+	}
+}
+
+enum class ImagePickerToolbarItem : NoteToolBar {
+	IMAGE {
+		override val icon: Int = R.drawable.photograph_outline
+	},
+	CAMERA {
+		override val icon: Int = R.drawable.camera_outline
+	}
+}
+
+enum class VideoPickerToolbarItem : NoteToolBar {
+	VIDEO {
+		override val icon: Int = R.drawable.film_outline
+	},
+	RECORD {
+		override val icon: Int = R.drawable.video_camera_outline
+	}
+}
+
+interface NoteToolBar {
+	@get:DrawableRes
+	val icon : Int
 }
 
 @Preview
