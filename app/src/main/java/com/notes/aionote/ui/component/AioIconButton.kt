@@ -40,6 +40,7 @@ fun AioIconButton(
 	interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 	backgroundColor: Color = Color.Unspecified,
 	onClick: () -> Unit,
+	enabled: Boolean = true,
 	content: @Composable () -> Unit,
 ) {
 	Box(
@@ -51,6 +52,7 @@ fun AioIconButton(
 			.clickable(
 				interactionSource = interactionSource,
 				indication = rememberRipple(),
+				enabled = enabled,
 				role = Role.Button,
 				onClick = onClick
 			)
@@ -61,7 +63,7 @@ fun AioIconButton(
 			horizontalArrangement = Arrangement.Center,
 			verticalAlignment = Alignment.CenterVertically,
 		) {
-			CompositionLocalProvider(LocalContentColor provides AioTheme.primaryColor.base) {
+			CompositionLocalProvider(LocalContentColor provides if(enabled)AioTheme.primaryColor.base else AioTheme.neutralColor.base) {
 				content()
 			}
 		}

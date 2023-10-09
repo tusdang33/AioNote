@@ -1,8 +1,7 @@
-package com.notes.aionote.presentation.note
+package com.notes.aionote.presentation.note.normal_note
 
 import AioVideoNote
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,12 +25,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notes.aionote.FileProviderHelper
+import com.notes.aionote.R
 import com.notes.aionote.collectInLaunchedEffectWithLifecycle
 import com.notes.aionote.data.model.CheckNote
 import com.notes.aionote.data.model.MediaNote
@@ -155,7 +157,7 @@ fun NoteScreen(
 				onBackClick.invoke()
 			}
 		) {
-			Text(text = "New Note")
+			Text(text = stringResource(id = R.string.new_note))
 		}
 		
 		AioNoteTitle(
@@ -166,6 +168,9 @@ fun NoteScreen(
 				onEvent(NoteEvent.OnTitleChange(it))
 			}
 		)
+		val focusRequester by remember {
+			mutableStateOf(FocusRequester())
+		}
 		
 		LazyColumn(
 			modifier = Modifier
@@ -174,7 +179,11 @@ fun NoteScreen(
 					indication = null,
 					enabled = true,
 					onClick = {
-						Log.e("tudm", "NoteScreen clcikc ")
+						try {
+							focusRequester.requestFocus()
+						} catch (e: Exception) {
+							/* ignore focus */
+						}
 					}
 				)
 				.background(AioTheme.neutralColor.white)
@@ -194,7 +203,8 @@ fun NoteScreen(
 							},
 							onDeleteCheckbox = {
 								onEvent(NoteEvent.DeleteItem(index))
-							}
+							},
+							focusRequester = focusRequester
 						)
 					}
 					

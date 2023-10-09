@@ -1,5 +1,9 @@
 package com.notes.aionote
 
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavDestination
@@ -9,13 +13,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.google.accompanist.navigation.material.BottomSheetNavigator
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.notes.aionote.common.TopLevelDestination
 import com.notes.aionote.presentation.authentication.sign_in.signInRoute
 import com.notes.aionote.presentation.authentication.sign_up.signUpRoute
 import com.notes.aionote.presentation.home.homeRoute
 import com.notes.aionote.presentation.home.navigateToHome
-import com.notes.aionote.presentation.note.navigateToNote
-import com.notes.aionote.presentation.note.noteRoute
+import com.notes.aionote.presentation.note.navigation.navigateToNote
+import com.notes.aionote.presentation.note.navigation.navigateToTask
+import com.notes.aionote.presentation.note.navigation.noteRoute
+import com.notes.aionote.presentation.note.navigation.taskRoute
 import com.notes.aionote.presentation.save.navigateToSave
 import com.notes.aionote.presentation.save.saveRoute
 import com.notes.aionote.presentation.search.navigateToSearch
@@ -24,17 +32,32 @@ import com.notes.aionote.presentation.setting.navigateToSetting
 import com.notes.aionote.presentation.setting.settingRoute
 import com.notes.aionote.presentation.splash.splashRoute
 
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialNavigationApi::class)
 @Composable
 fun rememberAppState(
-	navController: NavHostController = rememberNavController()
+	sheetState: ModalBottomSheetState = rememberModalBottomSheetState(
+		initialValue = ModalBottomSheetValue.Hidden,
+		confirmValueChange = { it != ModalBottomSheetValue.Expanded },
+		skipHalfExpanded = false
+	),
+	bottomSheetNavigator: BottomSheetNavigator = remember { BottomSheetNavigator(sheetState) },
+	navController: NavHostController = rememberNavController(bottomSheetNavigator),
 ): AioAppState {
 	return remember {
-		AioAppState(navController = navController)
+		AioAppState(
+			navController = navController,
+			bottomSheetNavigator = bottomSheetNavigator
+		)
 	}
 }
 
-class AioAppState(val navController: NavHostController) {
+class AioAppState @OptIn(ExperimentalMaterialNavigationApi::class) constructor(
+	val navController: NavHostController,
+	val bottomSheetNavigator: BottomSheetNavigator,
+) {
 	val itemNavigation = TopLevelDestination.values().asList()
+	
+	private var currentPage: Int = 0
 	
 	val currentDestination: NavDestination?
 		@Composable get() = navController
@@ -84,7 +107,15 @@ class AioAppState(val navController: NavHostController) {
 	}
 	
 	fun navigateToNoteScreen() {
-		navController.navigateToNote()
+		if (currentPage == 0) {
+			navController.navigateToNote()
+		} else {
+			navController.navigateToTask()
+		}
+	}
+	
+	fun changeCurrentPage(index: Int) {
+		currentPage = index
 	}
 }
 

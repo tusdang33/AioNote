@@ -38,15 +38,29 @@ class HomeViewModel @Inject constructor(
 	override val uiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
 	
 	init {
-		fetchHomeData()
+		fetchNoteData()
+//		fetchTaskData()
 	}
 	
-	private fun fetchHomeData() = viewModelScope.launch(ioDispatcher) {
-		localNoteRepository.getAllNote().collect { notes ->
+	private fun fetchNoteData() = viewModelScope.launch(ioDispatcher) {
+		localNoteRepository.getAllNote().collect { task ->
 			withContext(mainDispatcher) {
 				_homeUiState.update { uiState ->
 					uiState.copy(
-						listNote = notes.map { it.toNote(audioRecorder) }.toMutableStateList()
+						listTask = task.filter { it.noteType == 2 } .map { it.toNote(audioRecorder) }.toMutableStateList(),
+						listNote = task.filter { it.noteType == 1 } .map { it.toNote(audioRecorder) }.toMutableStateList(),
+					)
+				}
+			}
+		}
+	}
+	
+	private fun fetchTaskData() = viewModelScope.launch(ioDispatcher) {
+		localNoteRepository.getAllTask().collect { task ->
+			withContext(mainDispatcher) {
+				_homeUiState.update { uiState ->
+					uiState.copy(
+						listTask = task.map { it.toNote(audioRecorder) }.toMutableStateList()
 					)
 				}
 			}
@@ -70,21 +84,39 @@ class HomeViewModel @Inject constructor(
 				sendEvent(HomeOneTimeEvent.NavigateToNote(event.noteId))
 			}
 			
-			is HomeEvent.DeleteItem -> {
+			is HomeEvent.DeleteNote -> {
 				removeNote(event.index)
 			}
+			
+			is HomeEvent.DeleteTask -> {
+				removeTask(event.index)
+			}
+			
+			is HomeEvent.ChangePage -> {
+				sendEvent(HomeOneTimeEvent.ChangeCurrentPage(event.index))
+			}
+			
+			is HomeEvent.NavigateToEditTask -> {
+				sendEvent(HomeOneTimeEvent.NavigateToTask(event.taskId))
+			}
+			
 		}
 	}
 	
 	private fun removeNote(index: Int) = viewModelScope.launch {
 		localNoteRepository.deleteNote(_homeUiState.value.listNote[index].noteId)
 	}
+	
+	private fun removeTask(index: Int) = viewModelScope.launch {
+		localNoteRepository.deleteNote(_homeUiState.value.listTask[index].noteId)
+	}
 }
 
 data class HomeUiState(
 	override val isLoading: Boolean = false,
 	override val errorMessage: String? = null,
-	val listNote: SnapshotStateList<Note> = mutableStateListOf()
+	val listNote: SnapshotStateList<Note> = mutableStateListOf(),
+	val listTask: SnapshotStateList<Note> = mutableStateListOf()
 ): RootState.ViewUiState
 
 sealed interface HomeOneTimeEvent: RootState.OneTimeEvent<HomeUiState> {
@@ -112,10 +144,15 @@ sealed interface HomeOneTimeEvent: RootState.OneTimeEvent<HomeUiState> {
 	object Loading: HomeOneTimeEvent
 	object Success: HomeOneTimeEvent
 	data class NavigateToNote(val noteId: String): HomeOneTimeEvent
+	data class NavigateToTask(val noteId: String): HomeOneTimeEvent
+	data class ChangeCurrentPage(val page: Int): HomeOneTimeEvent
 	data class Fail(val errorMessage: String? = null): HomeOneTimeEvent
 }
 
 sealed class HomeEvent: RootState.ViewEvent {
 	data class NavigateToEditNote(val noteId: String): HomeEvent()
-	data class DeleteItem(val index: Int): HomeEvent()
+	data class NavigateToEditTask(val taskId: String): HomeEvent()
+	data class DeleteNote(val index: Int): HomeEvent()
+	data class DeleteTask(val index: Int): HomeEvent()
+	data class ChangePage(val index: Int): HomeEvent()
 }

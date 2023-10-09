@@ -1,4 +1,4 @@
-package com.notes.aionote.presentation.note
+package com.notes.aionote.presentation.note.normal_note
 
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
@@ -267,7 +267,11 @@ class NoteViewModel @Inject constructor(
 	}
 	
 	private fun removeNote(index: Int) {
-		if(_noteUiState.value.listNote.size == 1 && _noteUiState.value.listNote.last() is TextNote) return
+		if ((_noteUiState.value.listNote.size == 1 &&
+					_noteUiState.value.listNote.last() is TextNote) ||
+			(_noteUiState.value.listNote[index] is TextNote &&
+					index == _noteUiState.value.listNote.size - 1)
+		) return
 		_noteUiState.update {
 			it.copy(
 				listNote = it.listNote.apply {

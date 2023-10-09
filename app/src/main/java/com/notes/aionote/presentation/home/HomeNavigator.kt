@@ -14,13 +14,17 @@ fun NavController.navigateToHome(
 }
 
 fun NavGraphBuilder.homeGraph(
-	navigateToNote: (String) -> Unit
+	navigateToNote: (String) -> Unit,
+	navigateToTask: (String) -> Unit,
+	onChangeCurrentPage: (Int) -> Unit
 ){
 	composable(
 		route = homeRoute
 	){
 		HomeRoute(
-			navigateToNote = navigateToNote
+			navigateToNote = navigateToNote,
+			navigateToTask = navigateToTask,
+			onChangeCurrentPage = onChangeCurrentPage
 		)
 	}
 }

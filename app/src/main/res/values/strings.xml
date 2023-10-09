@@ -26,5 +26,11 @@
     <string name="register_with_google">Register with Google</string>
     <string name="sign_up_login">Already have an account? Login here</string>
 
+    //Note
+    <string name="set_button">Set</string>
+    <string name="new_note">New Note</string>
+    <string name="chosen_time">Chosen time: %s ------ %s</string>
+
+
 
 </resources>

@@ -11,8 +11,10 @@ import com.notes.aionote.presentation.authentication.sign_up.navigateToSignUp
 import com.notes.aionote.presentation.authentication.sign_up.signUpGraph
 import com.notes.aionote.presentation.home.homeGraph
 import com.notes.aionote.presentation.home.navigateToHome
-import com.notes.aionote.presentation.note.navigateToNote
-import com.notes.aionote.presentation.note.noteGraph
+import com.notes.aionote.presentation.note.navigation.navigateToNote
+import com.notes.aionote.presentation.note.navigation.navigateToTask
+import com.notes.aionote.presentation.note.navigation.noteGraph
+import com.notes.aionote.presentation.note.navigation.taskGraph
 import com.notes.aionote.presentation.save.saveGraph
 import com.notes.aionote.presentation.search.searchGraph
 import com.notes.aionote.presentation.setting.settingGraph
@@ -22,6 +24,7 @@ import com.notes.aionote.presentation.splash.splashRoute
 @Composable
 fun AioNavHost(
 	modifier: Modifier = Modifier,
+	appState: AioAppState,
 	navController: NavHostController,
 	snackbarHostState: SnackbarHostState
 ) {
@@ -37,6 +40,12 @@ fun AioNavHost(
 		homeGraph(
 			navigateToNote = {
 				navController.navigateToNote(noteId = it)
+			},
+			navigateToTask = {
+				navController.navigateToTask(taskId = it)
+			},
+			onChangeCurrentPage = {
+				appState.changeCurrentPage(it)
 			}
 		)
 		searchGraph()
@@ -54,6 +63,11 @@ fun AioNavHost(
 			navigateToHome = { navController.navigateToHome() }
 		)
 		noteGraph(
+			onBackClick = {
+				navController.popBackStack()
+			}
+		)
+		taskGraph(
 			onBackClick = {
 				navController.popBackStack()
 			}

@@ -11,6 +11,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
@@ -23,6 +25,7 @@ import com.notes.aionote.ui.theme.AioTheme
 fun AioTextField(
 	modifier: Modifier = Modifier,
 	text: String,
+	focusRequester: FocusRequester = FocusRequester(),
 	textStyle: TextStyle = AioTheme.regularTypography.base,
 	textFieldColors: Color = AioTheme.neutralColor.white,
 	onTextChange: (String) -> Unit,
@@ -31,6 +34,7 @@ fun AioTextField(
 	
 	BasicTextField(
 		modifier = modifier
+			.focusRequester(focusRequester)
 			.height(IntrinsicSize.Min)
 			.fillMaxWidth(),
 		value = text,

@@ -21,6 +21,9 @@ class LocalNoteRepositoryImpl @Inject constructor(
 	override fun getAllNote(): Flow<List<NoteEntity>> =
 		realm.query<NoteEntity>().asFlow().map { it.list }
 	
+	override fun getAllTask(): Flow<List<NoteEntity>> =
+		realm.query<NoteEntity>(query = "noteType == $0", 2).asFlow().map { it.list }
+	
 	override fun getNoteById(noteId: String): NoteEntity? {
 		return realm.query<NoteEntity>(query = "noteId == $0", ObjectId(hexString = noteId))
 			.first()
