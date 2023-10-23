@@ -29,7 +29,7 @@
     //Note
     <string name="set_button">Set</string>
     <string name="new_note">New Note</string>
-    <string name="chosen_time">Chosen time: %s ------ %s</string>
+    <string name="chosen_time">Chosen time: --- %s --- %s</string>
 
 
 

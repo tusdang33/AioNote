@@ -38,7 +38,7 @@ fun rememberAppState(
 	sheetState: ModalBottomSheetState = rememberModalBottomSheetState(
 		initialValue = ModalBottomSheetValue.Hidden,
 		confirmValueChange = { it != ModalBottomSheetValue.Expanded },
-		skipHalfExpanded = false
+		skipHalfExpanded = true
 	),
 	bottomSheetNavigator: BottomSheetNavigator = remember { BottomSheetNavigator(sheetState) },
 	navController: NavHostController = rememberNavController(bottomSheetNavigator),

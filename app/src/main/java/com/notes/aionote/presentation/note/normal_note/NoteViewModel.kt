@@ -67,7 +67,7 @@ class NoteViewModel @Inject constructor(
 							currentTime = note.createTime,
 							listNote = uiState.listNote.apply {
 								clear()
-								addNotes(note.notes)
+								addAll(note.notes)
 							}
 						)
 					}
@@ -229,7 +229,7 @@ class NoteViewModel @Inject constructor(
 				}
 			}
 			
-			is NoteEvent.PlayItem -> {
+			is NoteEvent.PlayOrStopVoice -> {
 				val note = _noteUiState.value.listNote.getOrNull(event.index)
 				if (note != null && note is MediaNote) {
 					_noteUiState.update {
@@ -240,20 +240,22 @@ class NoteViewModel @Inject constructor(
 						)
 					}
 					audioPlayer.stop()
-					audioPlayer.playFile(note.mediaPath.toUri())
-					audioPlayer.getPlayingAudio().success { mediaPlayer ->
-						mediaPlayer?.setOnCompletionListener {
-							audioPlayer.stop()
-							_noteUiState.update {
-								it.copy(
-									listNote = it.listNote.apply {
-										set(event.index, note.copy(isPlaying = false))
-									}
-								)
+					if(event.isPlaying) {
+						audioPlayer.playFile(note.mediaPath.toUri())
+						audioPlayer.getPlayingAudio().success { mediaPlayer ->
+							mediaPlayer?.setOnCompletionListener {
+								audioPlayer.stop()
+								_noteUiState.update {
+									it.copy(
+										listNote = it.listNote.apply {
+											set(event.index, note.copy(isPlaying = false))
+										}
+									)
+								}
 							}
+						}.fail {
+							failHandle(it)
 						}
-					}.fail {
-						failHandle(it)
 					}
 				}
 			}
@@ -383,7 +385,7 @@ sealed class NoteEvent: RootState.ViewEvent {
 	data class AddVideo(val path: Uri): NoteEvent()
 	data class AddAttachment(val path: Uri): NoteEvent()
 	data class DeleteItem(val index: Int): NoteEvent()
-	data class PlayItem(
+	data class PlayOrStopVoice(
 		val index: Int,
 		val isPlaying: Boolean
 	): NoteEvent()

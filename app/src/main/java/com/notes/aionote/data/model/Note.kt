@@ -11,6 +11,7 @@ data class Note(
 	val title: String? = "",
 	val createTime: Long = System.currentTimeMillis(),
 	val noteType: Int,
+	val category: String = "",
 	val deadLine: Long? = null
 )
 
@@ -20,7 +21,8 @@ fun NoteEntity.toNote(audioRecorder: AudioRecorder? = null) : Note {
 		notes = this.notes.map { it.toNoteContent(audioRecorder) },
 		title = this.title,
 		createTime = this.createTime,
-		noteType = 1,
+		noteType = this.noteType,
+		category = this.category,
 		deadLine = this.deadLine
 	)
 }

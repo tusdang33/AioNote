@@ -268,9 +268,10 @@ fun NoteScreen(
 									voiceDuration = note.mediaDuration ?: 0L,
 									isPlaying = note.isPlaying,
 									onPlayClick = {
-										onEvent(NoteEvent.PlayItem(index, !note.isPlaying))
+										onEvent(NoteEvent.PlayOrStopVoice(index, !note.isPlaying))
 									},
 									onDeleteClick = {
+										onEvent(NoteEvent.PlayOrStopVoice(index, false))
 										onEvent(NoteEvent.DeleteItem(index))
 									}
 								)
@@ -299,8 +300,8 @@ fun NoteScreen(
 		
 		
 		AioNotePicker(
-			options = NoteOption.values().toList(),
-			holdingNoteOption = holdingNoteOption,
+			pickers = NoteOption.values().toList(),
+			holdingNotePicker = holdingNoteOption,
 			onToolbarItemClick = {
 				when(it) {
 					ImagePickerToolbarItem.IMAGE -> {
@@ -317,11 +318,11 @@ fun NoteScreen(
 					}
 				}
 			},
-			onOptionClick = {
+			onPickerClick = {
 				when (it) {
 					NoteOption.VOICE -> {
 						if (holdingNoteOption == null) {
-							holdingNoteOption = it
+							holdingNoteOption = it as? NoteOption
 							onEvent(NoteEvent.StartRecord)
 						} else {
 							holdingNoteOption = null

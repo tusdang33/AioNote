@@ -91,6 +91,7 @@ class HomeViewModel @Inject constructor(
 			}
 			
 			is HomeEvent.ChangePage -> {
+				Log.e("tudm", "onEvent ${event.index} ", )
 				sendEvent(HomeOneTimeEvent.ChangeCurrentPage(event.index))
 			}
 			

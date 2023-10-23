@@ -11,12 +11,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,8 +49,7 @@ fun TaskRoute(
 ) {
 	val taskUiState by taskViewModel.uiState.collectAsStateWithLifecycle()
 	TaskScreen(
-		modifier = Modifier
-			.heightIn(max = 300.dp),
+		modifier = Modifier,
 		taskUiState = taskUiState,
 		onBackClick = onBackClick,
 		onEvent = taskViewModel::onEvent
@@ -58,6 +63,8 @@ fun TaskScreen(
 	onBackClick: () -> Unit,
 	onEvent: (TaskEvent) -> Unit
 ) {
+	val lazyListState = rememberLazyListState()
+	
 	AnimatedVisibility(visible = taskUiState.isShowDialog) {
 		AioDateTimePicker(
 			onSetDateTime = {
@@ -70,23 +77,46 @@ fun TaskScreen(
 		)
 	}
 	
+	DisposableEffect(Unit) {
+		onDispose {
+			onEvent(TaskEvent.SaveNote)
+		}
+	}
+	
 	Column(
 		modifier = modifier
 			.padding(18.dp)
 			.clip(RoundedCornerShape(12.dp))
 			.background(Color.White)
-			.padding(horizontal = 18.dp, vertical = 22.dp)
+			.padding(horizontal = 18.dp, vertical = 22.dp),
+		verticalArrangement = Arrangement.Center,
 	) {
-		AioCheckNote(
-			text = taskUiState.content,
-			onTextChange = {
-				onEvent(TaskEvent.OnContentChange(it))
+		LazyColumn(
+			modifier = Modifier.wrapContentSize(),
+			state = lazyListState,
+			verticalArrangement = Arrangement.spacedBy(8.dp)
+		) {
+			itemsIndexed(taskUiState.listCheckNote) { index, note ->
+				AioCheckNote(
+					text = note.content,
+					onTextChange = {
+						onEvent(TaskEvent.OnContentChange(index, it))
+					},
+					onDeleteCheckbox = {
+						onEvent(TaskEvent.DeleteItem(index))
+					},
+					onDone = {
+						onEvent(TaskEvent.AddCheckNote(index))
+					}
+				)
 			}
-		)
+		}
 		
 		if (taskUiState.deadline != null) {
 			Text(
-				modifier = Modifier.padding(vertical = 24.dp),
+				modifier = Modifier
+					.padding(vertical = 24.dp)
+					.heightIn(min = 32.dp),
 				text = "Deadline: ${taskUiState.deadline.formatTimestamp()}",
 				style = AioTheme.regularTypography.base.copy(color = AioTheme.primaryColor.base)
 			)
@@ -96,7 +126,9 @@ fun TaskScreen(
 		
 		
 		Row(
-			modifier = Modifier.fillMaxWidth(),
+			modifier = Modifier
+				.fillMaxWidth()
+				.requiredHeightIn(min = 50.dp),
 			horizontalArrangement = Arrangement.SpaceBetween,
 			verticalAlignment = Alignment.CenterVertically
 		) {
@@ -116,10 +148,9 @@ fun TaskScreen(
 			}
 			AioIconButton(
 				onClick = {
-					onEvent(TaskEvent.SaveNote)
 					onBackClick.invoke()
 				},
-				enabled = taskUiState.content.isNotBlank() && taskUiState.deadline != null,
+				enabled = taskUiState.deadline != null,
 				contentPaddingValues = PaddingValues(8.dp)
 			) {
 				Text(

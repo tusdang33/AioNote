@@ -4,11 +4,19 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
@@ -64,5 +72,13 @@ fun viewDocument(context: Context, uri: Uri) {
 	try {
 		context.startActivity(intent)
 	} catch (e: ActivityNotFoundException) {
+	}
+}
+
+fun Modifier.conditional(condition : Boolean, modifier : @Composable Modifier.() -> Modifier) : Modifier = composed {
+	if (condition) {
+		then(modifier(Modifier))
+	} else {
+		this
 	}
 }
