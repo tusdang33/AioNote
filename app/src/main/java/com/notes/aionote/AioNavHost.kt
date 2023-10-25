@@ -9,6 +9,8 @@ import com.notes.aionote.presentation.authentication.sign_in.navigateToSignIn
 import com.notes.aionote.presentation.authentication.sign_in.signInGraph
 import com.notes.aionote.presentation.authentication.sign_up.navigateToSignUp
 import com.notes.aionote.presentation.authentication.sign_up.signUpGraph
+import com.notes.aionote.presentation.category.categoryGraph
+import com.notes.aionote.presentation.category.navigateToCategory
 import com.notes.aionote.presentation.home.homeGraph
 import com.notes.aionote.presentation.home.navigateToHome
 import com.notes.aionote.presentation.note.navigation.navigateToNote
@@ -46,6 +48,9 @@ fun AioNavHost(
 			},
 			onChangeCurrentPage = {
 				appState.changeCurrentPage(it)
+			},
+			navigateToCategory = {
+				navController.navigateToCategory(noteId = it ?: "")
 			}
 		)
 		searchGraph()
@@ -70,6 +75,14 @@ fun AioNavHost(
 		taskGraph(
 			onBackClick = {
 				navController.popBackStack()
+			}
+		)
+		categoryGraph(
+			onBackClick = {
+				navController.popBackStack()
+			},
+			navigateToHomeWithFilter = {
+				navController.navigateToHome(filterId = it)
 			}
 		)
 	}

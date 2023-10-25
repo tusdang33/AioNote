@@ -10,11 +10,12 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.notes.aionote.common.AioConst.NOTIFICATION_ID
+import com.notes.aionote.common.AioConst.NOTIFICATION_TITLE
 import com.notes.aionote.common.AioConst.NOTIFICATION_WORK
 import com.notes.aionote.common.AioDispatcher
-import com.notes.aionote.common.AioNoteRepoType
+import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.Dispatcher
-import com.notes.aionote.common.NoteRepoType
+import com.notes.aionote.common.RepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.success
@@ -23,6 +24,7 @@ import com.notes.aionote.data.model.toNote
 import com.notes.aionote.data.model.toNoteContentEntity
 import com.notes.aionote.domain.data.NoteEntity
 import com.notes.aionote.domain.repository.NoteRepository
+import com.notes.aionote.presentation.note.NoteType
 import com.notes.aionote.worker.ReminderWork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -41,9 +43,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TaskViewModel @Inject constructor(
-	@ApplicationContext private val applicationContext: Context,
 	private val savedStateHandle: SavedStateHandle,
-	@NoteRepoType(AioNoteRepoType.LOCAL) private val noteRepository: NoteRepository,
+	private val instanceWorkManager: WorkManager,
+	@RepoType(AioRepoType.LOCAL) private val noteRepository: NoteRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 ): RootViewModel<TaskUiState, TaskOneTimeEvent, TaskEvent>() {
 	private val currentTaskId: String = checkNotNull(savedStateHandle["taskId"])
@@ -121,20 +123,6 @@ class TaskViewModel @Inject constructor(
 			
 			TaskEvent.SaveNote -> {
 				saveNote()
-				val notificationWork = OneTimeWorkRequest.Builder(ReminderWork::class.java)
-					.setInitialDelay(1000L, TimeUnit.MILLISECONDS)
-					.setInputData(
-						Data.Builder().putInt(NOTIFICATION_ID, 0).build()
-					)
-					.build()
-				
-				val instanceWorkManager = WorkManager.getInstance(applicationContext)
-				
-				instanceWorkManager.beginUniqueWork(
-					NOTIFICATION_WORK,
-					ExistingWorkPolicy.REPLACE,
-					notificationWork
-				).enqueue()
 			}
 			
 			TaskEvent.PickDateTime -> {
@@ -163,6 +151,24 @@ class TaskViewModel @Inject constructor(
 		}
 	}
 	
+	private fun setReminder(delay: Long = 3000L, title: String = "This is title") {
+		val notificationWork = OneTimeWorkRequest.Builder(ReminderWork::class.java)
+			.setInitialDelay(delay, TimeUnit.MILLISECONDS)
+			.setInputData(
+				Data.Builder()
+					.putInt(NOTIFICATION_ID, 0)
+					.putString(NOTIFICATION_TITLE, title)
+					.build()
+			)
+			.build()
+		
+		instanceWorkManager.beginUniqueWork(
+			NOTIFICATION_WORK,
+			ExistingWorkPolicy.REPLACE,
+			notificationWork
+		).enqueue()
+	}
+	
 	private fun saveNote() = viewModelScope.launch(NonCancellable + ioDispatcher) {
 		val prepareNote = _taskUiState.value
 		if (prepareNote.listCheckNote.all { it.content.isEmpty() }) return@launch
@@ -172,7 +178,7 @@ class TaskViewModel @Inject constructor(
 			}
 			notes = prepareNote.listCheckNote.map { it.toNoteContentEntity() }.toRealmList()
 			deadLine = prepareNote.deadline
-			noteType = 2
+			noteType = NoteType.TASK.ordinal
 		}
 		if (currentTaskId != "null") {
 			noteRepository.updateNote(noteEntity = noteEntity)
@@ -180,6 +186,7 @@ class TaskViewModel @Inject constructor(
 			noteRepository.insertNote(noteEntity = noteEntity)
 		}
 		savedStateHandle["taskId"] = null
+		setReminder()
 	}
 }
 

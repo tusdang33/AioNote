@@ -54,6 +54,7 @@ import com.notes.aionote.presentation.note.components.AioNoteTitle
 import com.notes.aionote.presentation.note.components.AioTextNote
 import com.notes.aionote.presentation.note.components.AioVoiceNote
 import com.notes.aionote.presentation.note.components.ImagePickerToolbarItem
+import com.notes.aionote.presentation.note.components.NoteContentToolbarItem
 import com.notes.aionote.presentation.note.components.NoteOption
 import com.notes.aionote.presentation.note.components.NoteToolbarItem
 import com.notes.aionote.presentation.note.components.VideoPickerToolbarItem
@@ -250,7 +251,7 @@ fun NoteScreen(
 							IMAGE -> {
 								AioImageNote(image = note.mediaPath) { toolbar ->
 									when (toolbar) {
-										NoteToolbarItem.DELETE -> onEvent(NoteEvent.DeleteItem(index))
+										NoteContentToolbarItem.DELETE -> onEvent(NoteEvent.DeleteItem(index))
 									}
 								}
 							}
@@ -258,7 +259,7 @@ fun NoteScreen(
 							VIDEO -> {
 								AioVideoNote(videoUrl = note.mediaPath) { toolbar ->
 									when (toolbar) {
-										NoteToolbarItem.DELETE -> onEvent(NoteEvent.DeleteItem(index))
+										NoteContentToolbarItem.DELETE -> onEvent(NoteEvent.DeleteItem(index))
 									}
 								}
 							}

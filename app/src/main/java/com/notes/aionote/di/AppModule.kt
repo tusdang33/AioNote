@@ -1,6 +1,7 @@
 package com.notes.aionote.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.notes.aionote.common.AioDispatcher
 import com.notes.aionote.common.Dispatcher
 import com.notes.aionote.data.repository.AudioPlayerImpl
@@ -53,4 +54,8 @@ object AppModule {
 	@Singleton
 	@Provides
 	fun provideAudioPlayer(@ApplicationContext context: Context) : AudioPlayer = AudioPlayerImpl(context)
+	
+	@Singleton
+	@Provides
+	fun provideWorkManager(@ApplicationContext context: Context) : WorkManager = WorkManager.getInstance(context)
 }

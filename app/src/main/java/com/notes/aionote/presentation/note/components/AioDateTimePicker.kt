@@ -14,6 +14,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -90,12 +92,18 @@ fun AioDateTimePicker(
 					verticalAlignment = Alignment.CenterVertically,
 					horizontalArrangement = Arrangement.SpaceBetween
 				) {
+					Icon(
+						painter = painterResource(id = R.drawable.clock_outline),
+						contentDescription = "",
+						tint = AioTheme.warningColor.base
+					)
 					Text(
-						text = stringResource(
-							id = R.string.chosen_time,
-							formatTimeString(timeState.hour, timeState.minute),
-							dateState.selectedDateMillis?.formatTimestamp(dayTimePattern) ?: ""
-						),
+						text = "${
+							formatTimeString(
+								timeState.hour,
+								timeState.minute
+							)
+						}  ${dateState.selectedDateMillis?.formatTimestamp(dayTimePattern) ?: ""}",
 						style = AioTheme.boldTypography.base.copy(color = AioTheme.neutralColor.white)
 					)
 					AioIconButton(
@@ -138,7 +146,9 @@ fun AioDateTimePicker(
 					}
 				}
 				Box(
-					modifier = Modifier.fillMaxWidth(),
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(bottom = 10.dp),
 					contentAlignment = Alignment.Center
 				) {
 					HorizontalPagerIndicator(
@@ -146,12 +156,9 @@ fun AioDateTimePicker(
 						pageCount = 2
 					)
 				}
-				
 			}
-			
 		}
 	}
-	
 }
 
 @Preview

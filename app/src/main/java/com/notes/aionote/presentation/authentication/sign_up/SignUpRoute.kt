@@ -133,6 +133,7 @@ fun SignUpScreen(
 		SignUpForm(signUpUiState = signUpUiState, onEvent = onEvent)
 		Spacer(modifier = Modifier.height(40.dp))
 		AioAuthButton(
+			modifier = Modifier.fillMaxWidth(),
 			isLoading = signUpUiState.isLoading,
 			onLoginDefault = { onEvent.invoke(SignUpEvent.OnSignUpByDefault) },
 			onLoginGoogle = { onEvent.invoke(SignUpEvent.OnGetGoogleIntent) },

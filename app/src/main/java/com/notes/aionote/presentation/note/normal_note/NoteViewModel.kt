@@ -7,9 +7,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.notes.aionote.common.AioDispatcher
-import com.notes.aionote.common.AioNoteRepoType
+import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.Dispatcher
-import com.notes.aionote.common.NoteRepoType
+import com.notes.aionote.common.RepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.fail
@@ -25,6 +25,7 @@ import com.notes.aionote.domain.data.NoteEntity
 import com.notes.aionote.domain.repository.AudioPlayer
 import com.notes.aionote.domain.repository.AudioRecorder
 import com.notes.aionote.domain.repository.NoteRepository
+import com.notes.aionote.presentation.note.NoteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.CoroutineDispatcher
@@ -41,7 +42,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NoteViewModel @Inject constructor(
 	private val savedStateHandle: SavedStateHandle,
-	@NoteRepoType(AioNoteRepoType.LOCAL) private val noteRepository: NoteRepository,
+	@RepoType(AioRepoType.LOCAL) private val noteRepository: NoteRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 	private val audioPlayer: AudioPlayer,
 	private val audioRecorder: AudioRecorder
@@ -275,7 +276,7 @@ class NoteViewModel @Inject constructor(
 			notes = prepareNote.listNote.map { it.toNoteContentEntity() }.toRealmList()
 			title = prepareNote.title
 			createTime = prepareNote.currentTime
-			noteType = 1
+			noteType = NoteType.NORMAL.ordinal
 		}
 		if (currentNoteId != "null") {
 			noteRepository.updateNote(noteEntity = noteEntity)

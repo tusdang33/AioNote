@@ -47,6 +47,7 @@ fun AioCheckNote(
 	scaleSize: Float = 1f,
 	checkBoxEnable: Boolean = true,
 	textFieldEnable: Boolean = true,
+	isCheckboxOnly: Boolean = false,
 	onCheckedChange: (Boolean) -> Unit = {},
 	onTextChange: (String) -> Unit = {},
 	onDone: () -> Unit = {},
@@ -72,36 +73,38 @@ fun AioCheckNote(
 			onCheckedChange = onCheckedChange
 		)
 		
-		Spacer(modifier = Modifier.width(5.dp))
-		
-		BasicTextField(
-			modifier = Modifier
-				.onKeyEvent {
-					Log.e("tudm", "AioCheckNote ${it.key} ",)
-					if (it.key.keyCode == 287762808832 && text.isEmpty()) {
-						onDeleteCheckbox.invoke()
-						true
-					} else {
-						true
+		if(!isCheckboxOnly) {
+			Spacer(modifier = Modifier.width(5.dp))
+			
+			BasicTextField(
+				modifier = Modifier
+					.onKeyEvent {
+						Log.e("tudm", "AioCheckNote ${it.key} ",)
+						if (it.key.keyCode == 287762808832 && text.isEmpty()) {
+							onDeleteCheckbox.invoke()
+							true
+						} else {
+							true
+						}
 					}
-				}
-				.height(IntrinsicSize.Min)
-				.fillMaxWidth(),
-			value = text,
-			textStyle = textStyle,
-			enabled = textFieldEnable,
-			onValueChange = onTextChange,
-			keyboardOptions = KeyboardOptions(
-				autoCorrect = false,
-				keyboardType = KeyboardType.Text,
-				imeAction = ImeAction.Done,
-			),
-			keyboardActions = KeyboardActions(
-				onDone = {
-					onDone.invoke()
-				}
+					.height(IntrinsicSize.Min)
+					.fillMaxWidth(),
+				value = text,
+				textStyle = textStyle,
+				enabled = textFieldEnable,
+				onValueChange = onTextChange,
+				keyboardOptions = KeyboardOptions(
+					autoCorrect = false,
+					keyboardType = KeyboardType.Text,
+					imeAction = ImeAction.Done,
+				),
+				keyboardActions = KeyboardActions(
+					onDone = {
+						onDone.invoke()
+					}
+				)
 			)
-		)
+		}
 	}
 }
 

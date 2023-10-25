@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,14 +43,14 @@ fun AioNoteToolbar(
 			modifier = modifier
 				.shadow(elevation, RoundedCornerShape(12.dp))
 				.background(AioTheme.neutralColor.white),
-			horizontalArrangement = Arrangement.SpaceAround
+			horizontalArrangement = Arrangement.Center
 		) {
 			toolbarItem.forEach {
 				AioIconButton(
+					modifier = Modifier.padding(horizontal = 12.dp),
 					onClick = { onItemClick.invoke(it) }
 				) {
 					Image(
-						modifier = Modifier.padding(horizontal = 20.dp),
 						painter = painterResource(id = it.icon),
 						contentDescription = ""
 					)
@@ -60,6 +61,21 @@ fun AioNoteToolbar(
 }
 
 enum class NoteToolbarItem: NoteToolBar {
+	ADD_CATEGORY {
+		override val icon: Int = R.drawable.folder_download_outline
+	},
+	DELETE {
+		override val icon: Int = R.drawable.trash_outline
+	},
+}
+
+enum class NoteContentToolbarItem : NoteToolBar {
+	DELETE {
+		override val icon: Int = R.drawable.trash_outline
+	}
+}
+
+enum class CategoryToolbarItem : NoteToolBar {
 	DELETE {
 		override val icon: Int = R.drawable.trash_outline
 	}

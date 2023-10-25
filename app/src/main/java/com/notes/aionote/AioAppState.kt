@@ -18,6 +18,7 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 import com.notes.aionote.common.TopLevelDestination
 import com.notes.aionote.presentation.authentication.sign_in.signInRoute
 import com.notes.aionote.presentation.authentication.sign_up.signUpRoute
+import com.notes.aionote.presentation.category.categoryRoute
 import com.notes.aionote.presentation.home.homeRoute
 import com.notes.aionote.presentation.home.navigateToHome
 import com.notes.aionote.presentation.note.navigation.navigateToNote
@@ -80,7 +81,8 @@ class AioAppState @OptIn(ExperimentalMaterialNavigationApi::class) constructor(
 				signInRoute,
 				signUpRoute,
 				noteRoute,
-				"$noteRoute?{noteId}"
+				"$noteRoute?{noteId}",
+				"$categoryRoute?{noteId}"
 			)
 			
 			when {

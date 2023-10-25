@@ -98,7 +98,8 @@ fun AioVoiceNote(
 				Icon(
 					modifier = Modifier.size(32.dp),
 					painter = painterResource(id = if (isPlaying) R.drawable.pause_fill else R.drawable.play_fill),
-					contentDescription = ""
+					contentDescription = "",
+					tint = AioTheme.warningColor.base
 				)
 			}
 			
@@ -147,7 +148,8 @@ fun AioVoiceNote(
 				Icon(
 					modifier = Modifier.size(32.dp),
 					painter = painterResource(id = R.drawable.trash_fill),
-					contentDescription = ""
+					contentDescription = "",
+					tint = AioTheme.errorColor.base
 				)
 			}
 		}

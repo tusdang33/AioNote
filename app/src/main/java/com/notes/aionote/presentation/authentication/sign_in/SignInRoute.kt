@@ -121,6 +121,7 @@ fun SignInScreen(
 		)
 		Spacer(modifier = Modifier.height(20.dp))
 		AioAuthButton(
+			modifier = Modifier.fillMaxWidth(),
 			isLoading = signInUiState.isLoading,
 			onLoginDefault = { onEvent.invoke(SignInEvent.OnLoginDefault) },
 			onLoginGoogle = { onEvent.invoke(SignInEvent.OnGetGoogleIntent) },

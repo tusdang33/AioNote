@@ -70,14 +70,17 @@ fun AioAuthButton(
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			AioButton(
+				modifier = modifier,
 				enableColor = AioTheme.primaryColor.base,
 				trailingIcon = {
-					if(!defaultLoginLoading)
-					Icon(
-						tint = AioTheme.neutralColor.white,
-						painter = painterResource(id = R.drawable.arrow2_right),
-						contentDescription = ""
-					)
+					if(!defaultLoginLoading) {
+						Icon(
+							tint = AioTheme.neutralColor.white,
+							painter = painterResource(id = R.drawable.arrow2_right),
+							contentDescription = ""
+						)
+					}
+					
 				},
 				onClick = {
 					defaultLoginLoading = true
@@ -107,6 +110,7 @@ fun AioAuthButton(
 				)
 			}
 			AioButton(
+				modifier = modifier,
 				borderColor = AioTheme.neutralColor.black,
 				enableColor = AioTheme.neutralColor.white,
 				onClick = {

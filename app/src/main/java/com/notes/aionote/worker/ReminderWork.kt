@@ -31,7 +31,7 @@ class ReminderWork(
 ): CoroutineWorker(context, params) {
 	override suspend fun doWork(): Result {
 		val id = inputData.getLong(NOTIFICATION_ID, 0).toInt()
-		val title = inputData.getString(NOTIFICATION_TITLE) ?: "title nek"
+		val title = inputData.getString(NOTIFICATION_TITLE) ?: "This is title"
 		sendNotification(id, title)
 		return success()
 	}

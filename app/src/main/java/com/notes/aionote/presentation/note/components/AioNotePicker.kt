@@ -137,8 +137,8 @@ enum class NoteSegment: NotePicker {
 	},
 	
 	CHECK {
-		override val icon: Int = R.drawable.note_check_outline
-		override val altIcon: Int = R.drawable.note_check_fill
+		override val icon: Int = R.drawable.note_check_outline_28
+		override val altIcon: Int = R.drawable.note_check_fill_28
 	}
 }
 

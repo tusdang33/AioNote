@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,7 +28,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +46,8 @@ import com.notes.aionote.data.model.MediaType
 import com.notes.aionote.data.model.Note
 import com.notes.aionote.data.model.TextNote
 import com.notes.aionote.formatTimestamp
+import com.notes.aionote.getVideoThumbnail
+import com.notes.aionote.presentation.note.NoteType
 import com.notes.aionote.ui.component.AioCornerCard
 import com.notes.aionote.ui.theme.AioComposeTheme
 import com.notes.aionote.ui.theme.AioTheme
@@ -62,6 +69,7 @@ fun AioNotePreview(
 		mutableStateOf(false)
 	}
 	val localDensity = LocalDensity.current
+	val context = LocalContext.current
 	var totalItem by rememberSaveable {
 		mutableStateOf(1)
 	}
@@ -92,7 +100,7 @@ fun AioNotePreview(
 					.fillMaxWidth()
 					.requiredHeightIn(max = maxHeight)
 					.onGloballyPositioned { coordinates ->
-						if (with(localDensity) { coordinates.size.height.toDp() } <= maxHeight) {
+						if (with(localDensity) { coordinates.size.height.toDp() } <= maxHeight - (totalItem*5).dp ) {
 							++totalItem
 						}
 					},
@@ -126,13 +134,34 @@ fun AioNotePreview(
 						
 						is MediaNote -> {
 							when (noteContent.mediaType) {
-								MediaType.IMAGE, MediaType.VIDEO -> {
+								MediaType.IMAGE -> {
 									AsyncImage(
 										modifier = Modifier.clip(RoundedCornerShape(12.dp)),
 										model = noteContent.mediaPath,
 										contentDescription = "",
 										contentScale = ContentScale.Crop
 									)
+								}
+								
+								MediaType.VIDEO -> {
+									Box(
+										modifier = Modifier.clip(RoundedCornerShape(12.dp)),
+										contentAlignment = Alignment.Center
+									) {
+										AsyncImage(
+											model = getVideoThumbnail(
+												context = context,
+												noteContent.mediaPath.toUri()
+											),
+											contentDescription = "",
+											contentScale = ContentScale.Crop
+										)
+										Icon(
+											modifier = Modifier.size(28.dp),
+											painter = painterResource(id = R.drawable.play_fill),
+											contentDescription = ""
+										)
+									}
 								}
 								
 								MediaType.VOICE -> {
@@ -187,7 +216,7 @@ private fun PreviewAioNotePreview() {
 			note =
 			Note(
 				noteId = "",
-				noteType = 1,
+				noteType = NoteType.TASK,
 				title = "This is title",
 				notes = listOf(
 					MediaNote(

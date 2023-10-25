@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.width
@@ -27,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,6 +38,7 @@ import com.notes.aionote.presentation.note.components.AioDateTimePicker
 import com.notes.aionote.ui.component.AioIconButton
 import com.notes.aionote.ui.theme.AioComposeTheme
 import com.notes.aionote.ui.theme.AioTheme
+import com.notes.aionote.yearWithoutSecTimePattern
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +86,7 @@ fun TaskScreen(
 		modifier = modifier
 			.padding(18.dp)
 			.clip(RoundedCornerShape(12.dp))
-			.background(Color.White)
+			.background(AioTheme.neutralColor.white)
 			.padding(horizontal = 18.dp, vertical = 22.dp),
 		verticalArrangement = Arrangement.Center,
 	) {
@@ -99,6 +98,7 @@ fun TaskScreen(
 			itemsIndexed(taskUiState.listCheckNote) { index, note ->
 				AioCheckNote(
 					text = note.content,
+					checked = note.checked,
 					onTextChange = {
 						onEvent(TaskEvent.OnContentChange(index, it))
 					},
@@ -112,18 +112,7 @@ fun TaskScreen(
 			}
 		}
 		
-		if (taskUiState.deadline != null) {
-			Text(
-				modifier = Modifier
-					.padding(vertical = 24.dp)
-					.heightIn(min = 32.dp),
-				text = "Deadline: ${taskUiState.deadline.formatTimestamp()}",
-				style = AioTheme.regularTypography.base.copy(color = AioTheme.primaryColor.base)
-			)
-		} else {
-			Spacer(modifier = Modifier.height(56.dp))
-		}
-		
+		Spacer(modifier = Modifier.height(56.dp))
 		
 		Row(
 			modifier = Modifier
@@ -143,7 +132,17 @@ fun TaskScreen(
 						contentDescription = ""
 					)
 					Spacer(modifier = Modifier.width(5.dp))
-					Text(text = "Remind Me")
+					if (taskUiState.deadline == null) {
+						Text(
+							text = "Remind Me",
+						     style = AioTheme.regularTypography.sm
+						)
+					} else {
+						Text(
+							text = taskUiState.deadline.formatTimestamp(yearWithoutSecTimePattern),
+							style = AioTheme.mediumTypography.sm.copy(color = AioTheme.primaryColor.base)
+						)
+					}
 				}
 			}
 			AioIconButton(

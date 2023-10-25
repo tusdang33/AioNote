@@ -29,8 +29,12 @@
     //Note
     <string name="set_button">Set</string>
     <string name="new_note">New Note</string>
+    <string name="list_task">List task of</string>
     <string name="chosen_time">Chosen time: --- %s --- %s</string>
 
-
-
+    //Category
+    <string name="category">Category</string>
+    <string name="new_category">New Category</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
 </resources>

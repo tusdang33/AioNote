@@ -1,10 +1,12 @@
 package com.notes.aionote.presentation.note.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,19 +28,23 @@ import com.notes.aionote.ui.theme.AioTheme
 fun AioNoteFilter(
 	modifier: Modifier = Modifier,
 	filerList: List<String>,
+	lazyListState : LazyListState = LazyListState(),
 	holdingNotePicker: String?,
 	onFilterClick: (String) -> Unit = {},
 	onCategoryManagerClick: () -> Unit = {}
 ) {
 	Row(modifier = modifier) {
 		LazyRow(
-			modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)),
+			state = lazyListState,
+			modifier = Modifier
+				.weight(1f)
+				.clip(RoundedCornerShape(12.dp)),
 			horizontalArrangement = Arrangement.spacedBy(10.dp)
 		) {
-			items(filerList) { filter ->
+			items(items = filerList, key = { it }
+			) { filter ->
 				val holding = holdingNotePicker == filter
 				AioIconButton(
-					modifier = Modifier,
 					shape = RoundedCornerShape(12.dp),
 					contentPaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
 					backgroundColor = if (holding) AioTheme.neutralColor.base else AioTheme.neutralColor.white,
