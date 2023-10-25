@@ -27,7 +27,7 @@ internal val AioWarningLightColor = Color(0xFFFDEBAB)
 
 internal val AioNeutralBaseColor = Color(0xFFC8C5CB)
 internal val AioNeutralDarkColor = Color(0xFF827D89)
-internal val AioNeutralLightColor = Color(0xFFEFEEF0)
+internal val AioNeutralLightColor = Color(0xFFF7F7F7)
 internal val AioNeutralBlackColor = Color(0xFF180E25)
 internal val AioNeutralWhiteColor = Color(0xFFFFFFFF)
 

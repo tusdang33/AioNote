@@ -1,10 +1,13 @@
 package com.notes.aionote.di
 
-import com.notes.aionote.common.AioNoteRepoType
-import com.notes.aionote.common.NoteRepoType
+import com.notes.aionote.common.AioRepoType
+import com.notes.aionote.common.RepoType
+import com.notes.aionote.data.repository.LocalCategoryRepositoryImpl
+import com.notes.aionote.data.repository.LocalNoteRepositoryImpl
+import com.notes.aionote.domain.data.CategoryEntity
 import com.notes.aionote.domain.data.NoteContentEntity
 import com.notes.aionote.domain.data.NoteEntity
-import com.notes.aionote.data.repository.LocalNoteRepositoryImpl
+import com.notes.aionote.domain.repository.CategoryRepository
 import com.notes.aionote.domain.repository.NoteRepository
 import dagger.Module
 import dagger.Provides
@@ -23,7 +26,8 @@ object DatabaseModule {
 		val config = RealmConfiguration.Builder(
 			schema = setOf(
 				NoteEntity::class,
-				NoteContentEntity::class
+				NoteContentEntity::class,
+				CategoryEntity::class
 			)
 		).compactOnLaunch().build()
 		return Realm.open(config)
@@ -31,6 +35,13 @@ object DatabaseModule {
 	
 	@Provides
 	@Singleton
-	@NoteRepoType(AioNoteRepoType.LOCAL)
-	fun provideRealmNoteRepository(realm: Realm): NoteRepository = LocalNoteRepositoryImpl(realm = realm)
+	@RepoType(AioRepoType.LOCAL)
+	fun provideRealmNoteRepository(realm: Realm): NoteRepository =
+		LocalNoteRepositoryImpl(realm = realm)
+	
+	@Provides
+	@Singleton
+	@RepoType(AioRepoType.LOCAL)
+	fun provideRealmCategoryRepository(realm: Realm): CategoryRepository =
+		LocalCategoryRepositoryImpl(realm = realm)
 }

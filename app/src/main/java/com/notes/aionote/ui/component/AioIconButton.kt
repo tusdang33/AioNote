@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +39,7 @@ fun AioIconButton(
 	modifier: Modifier = Modifier,
 	contentPaddingValues: PaddingValues = ButtonDefaults.TextButtonContentPadding,
 	interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+	shape: Shape = RoundedCornerShape(15.dp),
 	backgroundColor: Color = Color.Unspecified,
 	onClick: () -> Unit,
 	enabled: Boolean = true,
@@ -46,7 +48,7 @@ fun AioIconButton(
 	Box(
 		modifier = Modifier
 			.requiredHeightIn(22.dp)
-			.clip(RoundedCornerShape(15.dp))
+			.clip(shape)
 			.background(backgroundColor)
 			.then(modifier)
 			.clickable(

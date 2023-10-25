@@ -87,8 +87,7 @@ fun AioButton(
 	) {
 		CompositionLocalProvider(LocalTextStyle provides AioTheme.regularTypography.base) {
 			ConstraintLayout(
-				modifier = Modifier
-					.fillMaxWidth()
+				modifier = modifier
 			) {
 				val (leadRef, trailRef, contentRef) = createRefs()
 				

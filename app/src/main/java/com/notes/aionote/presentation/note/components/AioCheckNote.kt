@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
@@ -23,9 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -42,8 +47,10 @@ fun AioCheckNote(
 	scaleSize: Float = 1f,
 	checkBoxEnable: Boolean = true,
 	textFieldEnable: Boolean = true,
+	isCheckboxOnly: Boolean = false,
 	onCheckedChange: (Boolean) -> Unit = {},
 	onTextChange: (String) -> Unit = {},
+	onDone: () -> Unit = {},
 	onDeleteCheckbox: () -> Unit = {},
 ) {
 	
@@ -66,26 +73,38 @@ fun AioCheckNote(
 			onCheckedChange = onCheckedChange
 		)
 		
-		Spacer(modifier = Modifier.width(5.dp))
-		
-		BasicTextField(
-			modifier = Modifier
-				.onKeyEvent {
-					Log.e("tudm", "AioCheckNote ${it.key} ", )
-					if (it.key.keyCode == 287762808832 && text.isEmpty()) {
-						onDeleteCheckbox.invoke()
-						true
-					} else {
-						true
+		if(!isCheckboxOnly) {
+			Spacer(modifier = Modifier.width(5.dp))
+			
+			BasicTextField(
+				modifier = Modifier
+					.onKeyEvent {
+						Log.e("tudm", "AioCheckNote ${it.key} ",)
+						if (it.key.keyCode == 287762808832 && text.isEmpty()) {
+							onDeleteCheckbox.invoke()
+							true
+						} else {
+							true
+						}
 					}
-				}
-				.height(IntrinsicSize.Min)
-				.fillMaxWidth(),
-			value = text,
-			textStyle = textStyle,
-			enabled = textFieldEnable,
-			onValueChange = onTextChange,
-		)
+					.height(IntrinsicSize.Min)
+					.fillMaxWidth(),
+				value = text,
+				textStyle = textStyle,
+				enabled = textFieldEnable,
+				onValueChange = onTextChange,
+				keyboardOptions = KeyboardOptions(
+					autoCorrect = false,
+					keyboardType = KeyboardType.Text,
+					imeAction = ImeAction.Done,
+				),
+				keyboardActions = KeyboardActions(
+					onDone = {
+						onDone.invoke()
+					}
+				)
+			)
+		}
 	}
 }
 

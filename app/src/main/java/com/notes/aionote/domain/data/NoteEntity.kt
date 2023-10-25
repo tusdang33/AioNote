@@ -19,5 +19,6 @@ class NoteEntity : RealmObject {
 	1 -> TASK
 	 */
 	var noteType: Int = 0
+	var category: CategoryEntity? = null
 	var deadLine: Long? = null
 }

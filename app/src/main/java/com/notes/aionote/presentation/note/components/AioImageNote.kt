@@ -30,7 +30,7 @@ import coil.request.ImageRequest
 fun AioImageNote(
 	modifier: Modifier = Modifier,
 	image: String,
-	onToolbarItemClick: (NoteToolbarItem) -> Unit,
+	onToolbarItemClick: (NoteContentToolbarItem) -> Unit,
 ) {
 	var showToolbar by remember {
 		mutableStateOf(false)
@@ -54,11 +54,11 @@ fun AioImageNote(
 			contentScale = ContentScale.Crop
 		)
 		AioNoteToolbar(
-			toolbarItem = NoteToolbarItem.values().toList(),
+			toolbarItem = NoteContentToolbarItem.values().toList(),
 			showToolbar = showToolbar,
 			onItemClick = {
 				showToolbar = false
-				onToolbarItemClick.invoke(it as NoteToolbarItem)
+				onToolbarItemClick.invoke(it as NoteContentToolbarItem)
 			}
 		)
 	}

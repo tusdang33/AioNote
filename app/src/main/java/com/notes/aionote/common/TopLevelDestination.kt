@@ -22,15 +22,15 @@ enum class TopLevelDestination(
 		homeRoute
 	),
 	SAVE(
-		R.drawable.bookmark_fill,
-		R.drawable.bookmark_outline,
-		"Search",
+		R.drawable.note_check_fill,
+		R.drawable.note_check_outline,
+		"Finished",
 		saveRoute
 	),
 	SEARCH(
 		R.drawable.search_fill,
 		R.drawable.search_outline,
-		"Order",
+		"Search",
 		searchRoute
 	),
 	SETTING(

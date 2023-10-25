@@ -1,11 +1,21 @@
 package com.notes.aionote.presentation.note.task
 
+import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import com.notes.aionote.common.AioConst.NOTIFICATION_ID
+import com.notes.aionote.common.AioConst.NOTIFICATION_TITLE
+import com.notes.aionote.common.AioConst.NOTIFICATION_WORK
 import com.notes.aionote.common.AioDispatcher
-import com.notes.aionote.common.AioNoteRepoType
+import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.Dispatcher
-import com.notes.aionote.common.NoteRepoType
+import com.notes.aionote.common.RepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.success
@@ -14,8 +24,11 @@ import com.notes.aionote.data.model.toNote
 import com.notes.aionote.data.model.toNoteContentEntity
 import com.notes.aionote.domain.data.NoteEntity
 import com.notes.aionote.domain.repository.NoteRepository
+import com.notes.aionote.presentation.note.NoteType
+import com.notes.aionote.worker.ReminderWork
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.realm.kotlin.ext.realmListOf
+import dagger.hilt.android.qualifiers.ApplicationContext
+import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.NonCancellable
@@ -25,12 +38,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskViewModel @Inject constructor(
 	private val savedStateHandle: SavedStateHandle,
-	@NoteRepoType(AioNoteRepoType.LOCAL) private val noteRepository: NoteRepository,
+	private val instanceWorkManager: WorkManager,
+	@RepoType(AioRepoType.LOCAL) private val noteRepository: NoteRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 ): RootViewModel<TaskUiState, TaskOneTimeEvent, TaskEvent>() {
 	private val currentTaskId: String = checkNotNull(savedStateHandle["taskId"])
@@ -49,14 +64,15 @@ class TaskViewModel @Inject constructor(
 				if (note != null) {
 					_taskUiState.update { uiState ->
 						uiState.copy(
-							checked = (note.notes.firstOrNull() as CheckNote).checked,
-							content = (note.notes.firstOrNull() as CheckNote).content,
+							listCheckNote = uiState.listCheckNote.apply {
+								clear()
+								addAll(note.notes.map { it as CheckNote })
+							},
 							deadline = note.deadLine,
 						)
 					}
 				}
 			}
-			
 		}
 	}
 	
@@ -72,9 +88,35 @@ class TaskViewModel @Inject constructor(
 	override fun onEvent(event: TaskEvent) {
 		when (event) {
 			is TaskEvent.OnContentChange -> {
+				val note = _taskUiState.value.listCheckNote.getOrNull(event.index)
+				note?.let {
+					_taskUiState.update {
+						it.copy(
+							listCheckNote = it.listCheckNote.apply {
+								set(event.index, note.copy(content = event.content))
+							}
+						)
+					}
+				}
+			}
+			
+			is TaskEvent.AddCheckNote -> {
 				_taskUiState.update {
 					it.copy(
-						content = event.content
+						listCheckNote = it.listCheckNote.apply {
+							add(event.index + 1, CheckNote())
+						}
+					)
+				}
+			}
+			
+			is TaskEvent.DeleteItem -> {
+				if (_taskUiState.value.listCheckNote.size == 1) return
+				_taskUiState.update {
+					it.copy(
+						listCheckNote = it.listCheckNote.apply {
+							removeAt(event.index)
+						}
 					)
 				}
 			}
@@ -109,21 +151,34 @@ class TaskViewModel @Inject constructor(
 		}
 	}
 	
+	private fun setReminder(delay: Long = 3000L, title: String = "This is title") {
+		val notificationWork = OneTimeWorkRequest.Builder(ReminderWork::class.java)
+			.setInitialDelay(delay, TimeUnit.MILLISECONDS)
+			.setInputData(
+				Data.Builder()
+					.putInt(NOTIFICATION_ID, 0)
+					.putString(NOTIFICATION_TITLE, title)
+					.build()
+			)
+			.build()
+		
+		instanceWorkManager.beginUniqueWork(
+			NOTIFICATION_WORK,
+			ExistingWorkPolicy.REPLACE,
+			notificationWork
+		).enqueue()
+	}
+	
 	private fun saveNote() = viewModelScope.launch(NonCancellable + ioDispatcher) {
 		val prepareNote = _taskUiState.value
-		if (prepareNote.content.isBlank()) return@launch
+		if (prepareNote.listCheckNote.all { it.content.isEmpty() }) return@launch
 		val noteEntity = NoteEntity().apply {
 			if (currentTaskId != "null") {
 				noteId = ObjectId.invoke(hexString = currentTaskId)
 			}
-			notes = realmListOf(
-				CheckNote(
-					checked = false,
-					content = prepareNote.content
-				).toNoteContentEntity()
-			)
+			notes = prepareNote.listCheckNote.map { it.toNoteContentEntity() }.toRealmList()
 			deadLine = prepareNote.deadline
-			noteType = 2
+			noteType = NoteType.TASK.ordinal
 		}
 		if (currentTaskId != "null") {
 			noteRepository.updateNote(noteEntity = noteEntity)
@@ -131,14 +186,14 @@ class TaskViewModel @Inject constructor(
 			noteRepository.insertNote(noteEntity = noteEntity)
 		}
 		savedStateHandle["taskId"] = null
+		setReminder()
 	}
 }
 
 data class TaskUiState(
 	override val isLoading: Boolean = false,
 	override val errorMessage: String? = null,
-	val content: String = "",
-	val checked: Boolean = false,
+	val listCheckNote: SnapshotStateList<CheckNote> = mutableStateListOf(CheckNote()),
 	val deadline: Long? = null,
 	val isShowDialog: Boolean = false
 ): RootState.ViewUiState
@@ -147,7 +202,13 @@ sealed interface TaskOneTimeEvent: RootState.OneTimeEvent<TaskUiState> {
 }
 
 sealed class TaskEvent: RootState.ViewEvent {
-	data class OnContentChange(val content: String): TaskEvent()
+	data class OnContentChange(
+		val index: Int,
+		val content: String
+	): TaskEvent()
+	
+	data class AddCheckNote(val index: Int): TaskEvent()
+	data class DeleteItem(val index: Int): TaskEvent()
 	object SaveNote: TaskEvent()
 	object DismissDialog: TaskEvent()
 	data class OnDateTimeChange(val time: Long): TaskEvent()

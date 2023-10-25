@@ -27,6 +27,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.notes.aionote.presentation.note.components.AioNoteToolbar
+import com.notes.aionote.presentation.note.components.NoteContentToolbarItem
 import com.notes.aionote.presentation.note.components.NoteToolbarItem
 
 @SuppressLint("UnsafeOptInUsageError")
@@ -34,7 +35,7 @@ import com.notes.aionote.presentation.note.components.NoteToolbarItem
 fun AioVideoNote(
 	modifier: Modifier = Modifier,
 	videoUrl: String,
-	onToolbarItemClick: (NoteToolbarItem) -> Unit,
+	onToolbarItemClick: (NoteContentToolbarItem) -> Unit,
 ) {
 	val context = LocalContext.current
 	
@@ -98,11 +99,11 @@ fun AioVideoNote(
 			}
 		)
 		AioNoteToolbar(
-			toolbarItem = NoteToolbarItem.values().toList(),
+			toolbarItem = NoteContentToolbarItem.values().toList(),
 			showToolbar = showToolbar,
 			onItemClick =  {
 				showToolbar = false
-				onToolbarItemClick.invoke(it as NoteToolbarItem)
+				onToolbarItemClick.invoke(it as NoteContentToolbarItem)
 			}
 		)
 	}

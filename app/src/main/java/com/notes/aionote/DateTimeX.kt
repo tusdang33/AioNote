@@ -1,6 +1,7 @@
 package com.notes.aionote
 
 import android.os.Build
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -8,9 +9,11 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-const val yearTimePattern = "yyyy-MM-dd HH:mm:ss"
+const val yearTimePattern = "dd/MM/yyyy HH:mm:ss"
+const val yearWithoutSecTimePattern = "dd/MM/yyyy HH:mm"
 const val hourTimePattern = "HH:mm:ss"
-const val dayTimePattern = "yyyy-MM-dd"
+const val hourWithoutSecTimePattern = "HH:mm"
+const val dayTimePattern = "dd/MM/yyyy"
 
 fun Long.formatTimestamp(pattern: String = yearTimePattern): String {
 	return if (pattern == hourTimePattern) {
