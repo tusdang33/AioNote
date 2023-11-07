@@ -37,4 +37,27 @@
     <string name="new_category">New Category</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
+
+    //Setting
+    <string name="setting">Setting</string>
+    <string name="logout">Logout</string>
+    <string name="user">User</string>
+
+    //EditProfile
+    <string name="edit_profile">Edit Profile</string>
+    <string name="change_image">Change Image</string>
+    <string name="edit_success">Edit Success</string>
+    <string name="edit_fail">Edit Fail</string>
+    <string name="save_change">Save Change</string>
+
+    //ChangePassword
+    <string name="change_pass">Change Password</string>
+    <string name="current_pass_label">Please input your current password first</string>
+    <string name="current_pass">Current Password</string>
+    <string name="new_pass_label">Now, create your new password</string>
+    <string name="new_pass">New Password</string>
+    <string name="re_new_pass">Retype New Password</string>
+    <string name="submit_new_pass">Submit New Password</string>
+    <string name="change_pass_success">Change Password Success</string>
+    <string name="change_pass_fail">Change Password Fail</string>
 </resources>

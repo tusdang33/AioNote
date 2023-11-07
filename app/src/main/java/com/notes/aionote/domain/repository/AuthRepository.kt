@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.IntentSender
 import com.notes.aionote.common.Resource
 import com.notes.aionote.data.model.User
+import com.notes.aionote.domain.remote_data.FireUserEntity
 
 interface AuthRepository {
 	suspend fun <T> getCurrentUser(): Resource<T>
@@ -16,13 +17,14 @@ interface AuthRepository {
 	suspend fun register(
 		email: String,
 		pass: String,
-		fullName: String
-	): Resource<User>
+		fullName: String?
+	): Resource<FireUserEntity>
 	
 	suspend fun updatePass(pass: String): Resource<Unit>
 	suspend fun updateProfile(
-		name: String,
-		email: String
+		name: String?,
+		email: String?,
+		image: String?
 	): Resource<Unit>
 	
 	suspend fun oneTapSignIn(): Resource<IntentSender>

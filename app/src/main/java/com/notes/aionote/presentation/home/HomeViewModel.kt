@@ -1,6 +1,5 @@
 package com.notes.aionote.presentation.home
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
@@ -23,7 +22,7 @@ import com.notes.aionote.data.model.Note
 import com.notes.aionote.data.model.toCategory
 import com.notes.aionote.data.model.toNote
 import com.notes.aionote.data.model.toNoteContentEntity
-import com.notes.aionote.domain.data.NoteEntity
+import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.AudioRecorder
 import com.notes.aionote.domain.repository.CategoryRepository
 import com.notes.aionote.domain.repository.NoteRepository

@@ -1,4 +1,4 @@
-package com.notes.aionote.domain.data
+package com.notes.aionote.domain.local_data
 
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmList

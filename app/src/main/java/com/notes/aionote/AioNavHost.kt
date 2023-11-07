@@ -19,7 +19,11 @@ import com.notes.aionote.presentation.note.navigation.noteGraph
 import com.notes.aionote.presentation.note.navigation.taskGraph
 import com.notes.aionote.presentation.save.saveGraph
 import com.notes.aionote.presentation.search.searchGraph
-import com.notes.aionote.presentation.setting.settingGraph
+import com.notes.aionote.presentation.setting.navigation.changePasswordGraph
+import com.notes.aionote.presentation.setting.navigation.editProfileGraph
+import com.notes.aionote.presentation.setting.navigation.navigateToChangePassword
+import com.notes.aionote.presentation.setting.navigation.navigateToEditProfile
+import com.notes.aionote.presentation.setting.navigation.settingGraph
 import com.notes.aionote.presentation.splash.splashGraph
 import com.notes.aionote.presentation.splash.splashRoute
 
@@ -56,7 +60,32 @@ fun AioNavHost(
 		searchGraph()
 		saveGraph()
 		settingGraph(
-			navigateToSignIn = { navController.navigateToSignIn() }
+			navigateToSignIn = { navController.navigateToSignIn() },
+			navigateToEditProfile = { image, name, email ->
+				navController.navigateToEditProfile(
+					image = image,
+					userEmail = email,
+					userName = name
+				)
+			},
+			navigateToChangePassword = {
+				navController.navigateToChangePassword(email = it)
+			},
+			onBackClick = {
+				navController.popBackStack()
+			},
+			nestedGraph = {
+				editProfileGraph(
+					onBackClick = {
+						navController.popBackStack()
+					}
+				)
+				changePasswordGraph(
+					onBackClick = {
+						navController.popBackStack()
+					}
+				)
+			}
 		)
 		signInGraph(
 			snackbarHostState = snackbarHostState,

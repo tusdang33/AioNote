@@ -1,6 +1,6 @@
 package com.notes.aionote.data.model
 
-import com.notes.aionote.domain.data.NoteEntity
+import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.AudioRecorder
 import com.notes.aionote.presentation.note.NoteType
 

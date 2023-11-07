@@ -1,9 +1,6 @@
-package com.notes.aionote.domain.data
+package com.notes.aionote.domain.local_data
 
 import io.realm.kotlin.types.EmbeddedRealmObject
-import io.realm.kotlin.types.RealmAny
-import io.realm.kotlin.types.RealmObject
-import org.mongodb.kbson.ObjectId
 
 class NoteContentEntity : EmbeddedRealmObject {
 	/*

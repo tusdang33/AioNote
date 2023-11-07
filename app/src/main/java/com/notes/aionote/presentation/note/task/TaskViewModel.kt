@@ -1,6 +1,5 @@
 package com.notes.aionote.presentation.note.task
 
-import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.SavedStateHandle
@@ -22,12 +21,11 @@ import com.notes.aionote.common.success
 import com.notes.aionote.data.model.CheckNote
 import com.notes.aionote.data.model.toNote
 import com.notes.aionote.data.model.toNoteContentEntity
-import com.notes.aionote.domain.data.NoteEntity
+import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.NoteRepository
 import com.notes.aionote.presentation.note.NoteType
 import com.notes.aionote.worker.ReminderWork
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler

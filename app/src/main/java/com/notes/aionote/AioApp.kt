@@ -64,6 +64,7 @@ fun AioApp(
 									         it
 								         )
 							         },
+							         isShowFloatingButton = appState.isShowFloatingButton,
 							         onFloatingButtonClick = {
 								         appState.navigateToNoteScreen()
 							         })

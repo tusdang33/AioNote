@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -56,7 +57,6 @@ import com.notes.aionote.presentation.note.components.AioVoiceNote
 import com.notes.aionote.presentation.note.components.ImagePickerToolbarItem
 import com.notes.aionote.presentation.note.components.NoteContentToolbarItem
 import com.notes.aionote.presentation.note.components.NoteOption
-import com.notes.aionote.presentation.note.components.NoteToolbarItem
 import com.notes.aionote.presentation.note.components.VideoPickerToolbarItem
 import com.notes.aionote.ui.component.AioActionBar
 import com.notes.aionote.ui.theme.AioComposeTheme
@@ -118,7 +118,7 @@ fun NoteRoute(
 	}
 	
 	NoteScreen(
-		modifier = Modifier.fillMaxSize(),
+		modifier = Modifier.fillMaxSize().imePadding(),
 		noteUiState = noteUiState,
 		onBackClick = onBackClick,
 		onEvent = noteViewModel::onEvent
