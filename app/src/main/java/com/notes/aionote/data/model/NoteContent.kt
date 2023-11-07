@@ -3,7 +3,7 @@ package com.notes.aionote.data.model
 import android.net.Uri
 import androidx.core.net.toUri
 import com.notes.aionote.common.success
-import com.notes.aionote.domain.data.NoteContentEntity
+import com.notes.aionote.domain.local_data.NoteContentEntity
 import com.notes.aionote.domain.repository.AudioRecorder
 
 interface NoteContent

@@ -1,6 +1,6 @@
 package com.notes.aionote.data.model
 
-import com.notes.aionote.domain.data.CategoryEntity
+import com.notes.aionote.domain.local_data.CategoryEntity
 
 data class Category(
 	val categoryId: String = "",

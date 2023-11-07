@@ -15,7 +15,7 @@ import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.success
 import com.notes.aionote.data.model.Category
 import com.notes.aionote.data.model.toCategory
-import com.notes.aionote.domain.data.CategoryEntity
+import com.notes.aionote.domain.local_data.CategoryEntity
 import com.notes.aionote.domain.repository.AudioRecorder
 import com.notes.aionote.domain.repository.CategoryRepository
 import com.notes.aionote.domain.repository.NoteRepository
@@ -131,15 +131,14 @@ class CategoryViewModel @Inject constructor(
 		}
 	}
 	
-	private fun handleCategoryClick(category: Category) = viewModelScope.launch {
+	private fun handleCategoryClick(category: Category) = viewModelScope.launch (NonCancellable) {
 		if (!creatingCategoryNoteId.isNullOrBlank()) {
 			localNoteRepository.updateNoteCategory(
 				categoryId = category.categoryId,
 				noteId = creatingCategoryNoteId
 			)
-		} else {
-			sendEvent(CategoryOneTimeEvent.OnFilterNote(category = category))
 		}
+		sendEvent(CategoryOneTimeEvent.OnFilterNote(category = category))
 	}
 	
 	private fun deleteCategory(categoryId: String) = viewModelScope.launch {

@@ -1,7 +1,9 @@
 package com.notes.aionote.ui.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -13,12 +15,10 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -35,6 +35,7 @@ fun AioBottomNavigationBar(
 	destinations: List<TopLevelDestination>,
 	currentDestination: NavDestination?,
 	onNavigateToDestination: (TopLevelDestination) -> Unit,
+	isShowFloatingButton: Boolean,
 	onFloatingButtonClick: () -> Unit,
 ) {
 	Box(
@@ -82,7 +83,7 @@ fun AioBottomNavigationBar(
 				}
 			}
 			
-			FloatingActionButton(
+			AnimatedVisibility(
 				modifier = Modifier
 					.constrainAs(buttonRef) {
 						start.linkTo(parent.start)
@@ -90,12 +91,18 @@ fun AioBottomNavigationBar(
 						translationY = (-40).dp
 					}
 					.size(64.dp),
-				elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(5.dp),
-				shape = CircleShape,
-				containerColor = AioTheme.primaryColor.base,
-				onClick = onFloatingButtonClick
+				visible = isShowFloatingButton,
+				enter = fadeIn(),
+				exit = fadeOut()
 			) {
-				Image(painter = painterResource(id = R.drawable.plus), contentDescription = "")
+				FloatingActionButton(
+					elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(5.dp),
+					shape = CircleShape,
+					containerColor = AioTheme.primaryColor.base,
+					onClick = onFloatingButtonClick
+				) {
+					Image(painter = painterResource(id = R.drawable.plus), contentDescription = "")
+				}
 			}
 		}
 		

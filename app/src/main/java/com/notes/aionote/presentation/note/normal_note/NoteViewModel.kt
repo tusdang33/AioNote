@@ -21,7 +21,7 @@ import com.notes.aionote.data.model.NoteContent
 import com.notes.aionote.data.model.TextNote
 import com.notes.aionote.data.model.toNote
 import com.notes.aionote.data.model.toNoteContentEntity
-import com.notes.aionote.domain.data.NoteEntity
+import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.AudioPlayer
 import com.notes.aionote.domain.repository.AudioRecorder
 import com.notes.aionote.domain.repository.NoteRepository

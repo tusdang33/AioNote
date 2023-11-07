@@ -2,7 +2,7 @@ package com.notes.aionote.data.repository
 
 import android.util.Log
 import com.notes.aionote.common.Resource
-import com.notes.aionote.domain.data.CategoryEntity
+import com.notes.aionote.domain.local_data.CategoryEntity
 import com.notes.aionote.domain.repository.CategoryRepository
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy

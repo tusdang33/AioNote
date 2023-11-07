@@ -47,7 +47,7 @@ fun AioTextForm(
 	errorMessage: String? = null,
 	enabled: Boolean = true,
 	readOnly: Boolean = false,
-	shape: Shape = RoundedCornerShape(16.dp),
+	shape: Shape = RoundedCornerShape(8.dp),
 	textColor: Color = AioTheme.neutralColor.black,
 	singleLine: Boolean = false,
 	minLines: Int = 1,

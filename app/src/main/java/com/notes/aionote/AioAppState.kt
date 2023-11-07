@@ -29,8 +29,10 @@ import com.notes.aionote.presentation.save.navigateToSave
 import com.notes.aionote.presentation.save.saveRoute
 import com.notes.aionote.presentation.search.navigateToSearch
 import com.notes.aionote.presentation.search.searchRoute
-import com.notes.aionote.presentation.setting.navigateToSetting
-import com.notes.aionote.presentation.setting.settingRoute
+import com.notes.aionote.presentation.setting.navigation.changePasswordRoute
+import com.notes.aionote.presentation.setting.navigation.editProfileRoute
+import com.notes.aionote.presentation.setting.navigation.navigateToSetting
+import com.notes.aionote.presentation.setting.navigation.settingRoute
 import com.notes.aionote.presentation.splash.splashRoute
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialNavigationApi::class)
@@ -82,12 +84,27 @@ class AioAppState @OptIn(ExperimentalMaterialNavigationApi::class) constructor(
 				signUpRoute,
 				noteRoute,
 				"$noteRoute?{noteId}",
-				"$categoryRoute?{noteId}"
+				"$categoryRoute?{noteId}",
+				"$editProfileRoute?{image}?{userName}?{userEmail}",
+				"$changePasswordRoute?{email}"
 			)
 			
 			when {
 				blackList.contains(currentDestination?.route) -> false
 				else -> true
+			}
+		}
+	
+	val isShowFloatingButton : Boolean
+		@Composable
+		get() = run {
+			val whiteList = listOf(
+				"$homeRoute?{filterId}"
+			)
+			
+			when {
+				whiteList.contains(currentDestination?.route) -> true
+				else -> false
 			}
 		}
 	

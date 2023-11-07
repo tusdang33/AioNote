@@ -48,7 +48,6 @@ class SignUpViewModel @Inject constructor(
 	}
 	
 	override fun failHandle(errorMessage: String?) {
-		Log.e("tudm", "failHandle $errorMessage ")
 		sendEvent(SignUpOneTimeEvent.Fail(errorMessage))
 	}
 	
@@ -148,10 +147,9 @@ class SignUpViewModel @Inject constructor(
 		authRepository.register(
 			_signUpUiState.value.email,
 			_signUpUiState.value.password,
-			_signUpUiState.value.fullName
+			_signUpUiState.value.fullName.ifBlank { null }
 		)
 			.success {
-				
 				sendEvent(SignUpOneTimeEvent.Success)
 			}
 			.fail {

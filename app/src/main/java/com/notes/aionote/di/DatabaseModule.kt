@@ -4,9 +4,9 @@ import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.RepoType
 import com.notes.aionote.data.repository.LocalCategoryRepositoryImpl
 import com.notes.aionote.data.repository.LocalNoteRepositoryImpl
-import com.notes.aionote.domain.data.CategoryEntity
-import com.notes.aionote.domain.data.NoteContentEntity
-import com.notes.aionote.domain.data.NoteEntity
+import com.notes.aionote.domain.local_data.CategoryEntity
+import com.notes.aionote.domain.local_data.NoteContentEntity
+import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.CategoryRepository
 import com.notes.aionote.domain.repository.NoteRepository
 import dagger.Module

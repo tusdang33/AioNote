@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.notes.aionote.R
@@ -46,6 +47,7 @@ fun AioButton(
 	modifier: Modifier = Modifier,
 	onClick: () -> Unit,
 	enable: Boolean = true,
+	minHeight: Dp = 54.dp,
 	enableColor: Color = AioTheme.primaryColor.base,
 	disableColor: Color = AioTheme.neutralColor.base,
 	borderColor: Color = Color.Transparent,
@@ -71,7 +73,7 @@ fun AioButton(
 	Box(
 		propagateMinConstraints = true,
 		modifier = Modifier
-			.requiredHeightIn(54.dp)
+			.requiredHeightIn(minHeight)
 			.then(modifier)
 			.clip(shape)
 			.border(1.dp, borderColor,shape)

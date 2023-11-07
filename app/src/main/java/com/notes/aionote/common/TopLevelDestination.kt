@@ -5,7 +5,7 @@ import com.notes.aionote.R
 import com.notes.aionote.presentation.home.homeRoute
 import com.notes.aionote.presentation.save.saveRoute
 import com.notes.aionote.presentation.search.searchRoute
-import com.notes.aionote.presentation.setting.settingRoute
+import com.notes.aionote.presentation.setting.navigation.settingRoute
 
 enum class TopLevelDestination(
 	@DrawableRes

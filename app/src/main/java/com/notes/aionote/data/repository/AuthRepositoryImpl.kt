@@ -2,6 +2,8 @@ package com.notes.aionote.data.repository
 
 import android.content.Intent
 import android.content.IntentSender
+import android.util.Log
+import androidx.core.net.toUri
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.FirebaseAuth
@@ -11,7 +13,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.notes.aionote.common.AioFirebaseCollection
 import com.notes.aionote.common.CollectionRef
 import com.notes.aionote.common.Resource
-import com.notes.aionote.data.model.User
+import com.notes.aionote.domain.remote_data.FireUserEntity
 import com.notes.aionote.domain.repository.AuthRepository
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -57,11 +59,15 @@ class AuthRepositoryImp @Inject constructor (
 	override suspend fun register(
 		email: String,
 		pass: String,
-		fullName: String,
-	): Resource<User> {
+		fullName: String?,
+	): Resource<FireUserEntity> {
 		return try {
 			val fireUser = firebaseAuth.createUserWithEmailAndPassword(email, pass).await().user!!
-			val user = User(fireUser.uid, fullName, email, null)
+			val profileUpdate = userProfileChangeRequest {
+				displayName = fullName
+			}
+			fireUser.updateProfile(profileUpdate).await()
+			val user = FireUserEntity(fireUser.uid, fullName, email, null, fireUser.uid)
 			fireStoreUserCollection.document(fireUser.uid)
 				.set(user)
 				.await()
@@ -81,15 +87,27 @@ class AuthRepositoryImp @Inject constructor (
 	}
 	
 	override suspend fun updateProfile(
-		name: String,
-		email: String
+		name: String?,
+		email: String?,
+		image: String?
 	): Resource<Unit> {
 		return try {
+			val currentUser = firebaseAuth.currentUser!!
 			val profileUpdates = userProfileChangeRequest {
-				displayName = name
+				name?.let {
+					displayName = it
+				}
+				image?.let {
+					photoUri = it.toUri()
+				}
 			}
-			firebaseAuth.currentUser!!.updateProfile(profileUpdates).await()
-			firebaseAuth.currentUser!!.updateEmail(email).await()
+			currentUser.updateProfile(profileUpdates).await()
+			email?.let {fEmail ->
+				currentUser.verifyBeforeUpdateEmail(fEmail).addOnSuccessListener {
+					currentUser.updateEmail(fEmail)
+				}.addOnFailureListener {
+				}.await()
+			}
 			Resource.Success(Unit)
 		} catch (e: Exception) {
 			Resource.Fail(errorMessage = e.message)
@@ -112,7 +130,13 @@ class AuthRepositoryImp @Inject constructor (
 		val googleCredential = GoogleAuthProvider.getCredential(googleIdToken.googleIdToken, null)
 		return try {
 			val fireUser = firebaseAuth.signInWithCredential(googleCredential).await().user!!
-			val user = User(fireUser.uid, fireUser.displayName, fireUser.email ?: "", null)
+			val user = FireUserEntity(
+				fireUser.uid,
+				fireUser.displayName,
+				fireUser.email ?: "",
+				null,
+				fireUser.uid,
+			)
 			fireStoreUserCollection.document(fireUser.uid)
 				.set(user)
 				.await()

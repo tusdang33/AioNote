@@ -3,12 +3,14 @@ package com.notes.aionote.ui.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
@@ -16,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,64 +37,68 @@ fun AioActionBar(
 	trailingIcon: @Composable (RowScope.() -> Unit)? = null,
 	content: @Composable () -> Unit,
 ) {
-	ConstraintLayout(
-		modifier = modifier
-			.fillMaxWidth()
-			.sizeIn(minHeight = MinHeight)
-	) {
-		val (leadRef, trailRef, contentRef) = createRefs()
-		
-		Box(
-			contentAlignment = Alignment.CenterStart,
-			modifier = Modifier.constrainAs(leadRef) {
-				centerVerticallyTo(parent)
-				start.linkTo(parent.start)
-			}
+	Column {
+		ConstraintLayout(
+			modifier = modifier
+				.fillMaxWidth()
+				.sizeIn(minHeight = MinHeight)
 		) {
-			if(leadingIcon != null) {
-				Row(
-					horizontalArrangement = Arrangement.Center,
-					verticalAlignment = Alignment.CenterVertically,
-					content = leadingIcon
-				)
-			} else {
-				AioIconButton(
-					onClick = leadingIconClick
-				) {
-					Icon(
-						painter = painterResource(id = R.drawable.arrow_left_outline),
-						contentDescription = ""
-					)
-					Spacer(modifier = Modifier.width(15.dp))
-					Text(text = "Back", style = AioTheme.mediumTypography.base)
+			val (leadRef, trailRef, contentRef) = createRefs()
+			
+			Box(
+				contentAlignment = Alignment.CenterStart,
+				modifier = Modifier.constrainAs(leadRef) {
+					centerVerticallyTo(parent)
+					start.linkTo(parent.start)
 				}
-				
+			) {
+				if(leadingIcon != null) {
+					Row(
+						horizontalArrangement = Arrangement.Center,
+						verticalAlignment = Alignment.CenterVertically,
+						content = leadingIcon
+					)
+				} else {
+					AioIconButton(
+						onClick = leadingIconClick
+					) {
+						Icon(
+							painter = painterResource(id = R.drawable.arrow_left_outline),
+							contentDescription = ""
+						)
+						Spacer(modifier = Modifier.width(15.dp))
+						Text(text = "Back", style = AioTheme.mediumTypography.base)
+					}
+					
+				}
+			}
+			
+			Box(
+				modifier = Modifier.constrainAs(trailRef) {
+					centerVerticallyTo(parent)
+					end.linkTo(parent.end)
+				}
+			) {
+				if (trailingIcon != null) {
+					Row(
+						horizontalArrangement = Arrangement.Center,
+						verticalAlignment = Alignment.CenterVertically,
+						content = trailingIcon
+					)
+				}
+			}
+			
+			Box(modifier = Modifier.constrainAs(contentRef) {
+				centerTo(parent)
+			}) {
+				CompositionLocalProvider(LocalTextStyle provides AioTheme.mediumTypography.base) {
+					content()
+				}
 			}
 		}
-		
-		Box(
-			modifier = Modifier.constrainAs(trailRef) {
-				centerVerticallyTo(parent)
-				end.linkTo(parent.end)
-			}
-		) {
-			if (trailingIcon != null) {
-				Row(
-					horizontalArrangement = Arrangement.Center,
-					verticalAlignment = Alignment.CenterVertically,
-					content = trailingIcon
-				)
-			}
-		}
-		
-		Box(modifier = Modifier.constrainAs(contentRef) {
-			centerTo(parent)
-		}) {
-			CompositionLocalProvider(LocalTextStyle provides AioTheme.mediumTypography.base) {
-				content()
-			}
-		}
+		Divider(modifier = Modifier.fillMaxWidth(), color = AioTheme.neutralColor.base)
 	}
+	
 }
 
 object AioActionBarDefaults {
