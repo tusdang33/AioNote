@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import com.notes.aionote.common.success
 import com.notes.aionote.domain.local_data.NoteContentEntity
+import com.notes.aionote.domain.remote_data.FireNoteContent
 import com.notes.aionote.domain.repository.AudioRecorder
 
 interface NoteContent
@@ -94,6 +95,26 @@ fun NoteContent.toNoteContentEntity(): NoteContentEntity {
 		}
 		
 		else -> NoteContentEntity()
+	}
+}
+
+fun NoteContentEntity.toFireNoteContent(): FireNoteContent {
+	return FireNoteContent(
+		noteContentType = this.noteContentType,
+		content = this.content,
+		checked = this.checked,
+		mediaType = this.mediaType,
+		mediaPath = this.mediaPath
+	)
+}
+
+fun FireNoteContent.toNoteContentEntity(): NoteContentEntity {
+	return NoteContentEntity().apply {
+		noteContentType = this@toNoteContentEntity.noteContentType
+		content = this@toNoteContentEntity.content
+		checked = this@toNoteContentEntity.checked
+		mediaType = this@toNoteContentEntity.mediaType
+		mediaPath = this@toNoteContentEntity.mediaPath
 	}
 }
 

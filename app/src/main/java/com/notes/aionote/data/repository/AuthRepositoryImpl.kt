@@ -10,9 +10,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.ktx.toObject
 import com.notes.aionote.common.AioFirebaseCollection
 import com.notes.aionote.common.CollectionRef
+import com.notes.aionote.common.FirebaseConst
 import com.notes.aionote.common.Resource
+import com.notes.aionote.data.model.User
 import com.notes.aionote.domain.remote_data.FireUserEntity
 import com.notes.aionote.domain.repository.AuthRepository
 import kotlinx.coroutines.tasks.await
@@ -24,10 +27,26 @@ class AuthRepositoryImp @Inject constructor (
 	@CollectionRef(AioFirebaseCollection.USER) private val fireStoreUserCollection : CollectionReference,
 ) : AuthRepository {
 	private val firebaseAuth = FirebaseAuth.getInstance()
+	
 	@Suppress("UNCHECKED_CAST")
 	override suspend fun <T> getCurrentUser(): Resource<T> {
 		return try {
 			Resource.Success(result = firebaseAuth.currentUser as T)
+		} catch (e: Exception) {
+			Resource.Fail(errorMessage = e.message)
+		}
+	}
+	
+	override suspend fun getUserNoteRef(userId: String): Resource<String> {
+		var result = ""
+		return try {
+			fireStoreUserCollection.document(userId)
+				.collection(FirebaseConst.FIREBASE_INFO_COL_REF)
+				.document(userId)
+				.get().addOnSuccessListener { snapshot ->
+					result = snapshot.toObject<FireUserEntity>()?.noteContentRef ?: ""
+				}.await()
+			Resource.Success(result)
 		} catch (e: Exception) {
 			Resource.Fail(errorMessage = e.message)
 		}
@@ -69,6 +88,8 @@ class AuthRepositoryImp @Inject constructor (
 			fireUser.updateProfile(profileUpdate).await()
 			val user = FireUserEntity(fireUser.uid, fullName, email, null, fireUser.uid)
 			fireStoreUserCollection.document(fireUser.uid)
+				.collection("info")
+				.document(fireUser.uid)
 				.set(user)
 				.await()
 			Resource.Success(user)

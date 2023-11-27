@@ -6,14 +6,18 @@ import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {
 	fun getAllNote(): Flow<Resource<List<NoteEntity>>>
-	fun getNoteById(noteId: String): Resource<NoteEntity?>
-	fun getCategory(): Flow<Resource<List<String>>>
+	suspend fun getSnapShotOfAllNote(): Resource<List<NoteEntity>>
+	suspend fun getNoteById(noteId: String): Resource<NoteEntity?>
+	fun getNoteByKeyword(keyword: String): Flow<Resource<List<NoteEntity>>>
+	fun getNoteQuantityByCategory(categoryId : String): Flow<Resource<Int>>
+	
 	suspend fun insertNote(noteEntity: NoteEntity)
-	suspend fun updateNote(noteEntity: NoteEntity) : Resource<Unit>
+	suspend fun updateNote(noteEntity: NoteEntity, updateVersion: Boolean = true) : Resource<Unit>
 	suspend fun updateNoteCategory(
 		categoryId: String,
 		noteId: String
 	)
 	
 	suspend fun deleteNote(noteId: String)
+	suspend fun getDeletedNoteId() : Resource<List<String>>
 }

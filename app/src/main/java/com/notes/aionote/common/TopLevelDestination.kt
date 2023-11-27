@@ -3,7 +3,7 @@ package com.notes.aionote.common
 import androidx.annotation.DrawableRes
 import com.notes.aionote.R
 import com.notes.aionote.presentation.home.homeRoute
-import com.notes.aionote.presentation.save.saveRoute
+import com.notes.aionote.presentation.save.finishedRoute
 import com.notes.aionote.presentation.search.searchRoute
 import com.notes.aionote.presentation.setting.navigation.settingRoute
 
@@ -21,11 +21,11 @@ enum class TopLevelDestination(
 		"Home",
 		homeRoute
 	),
-	SAVE(
+	FINISHED(
 		R.drawable.note_check_fill,
 		R.drawable.note_check_outline,
 		"Finished",
-		saveRoute
+		finishedRoute
 	),
 	SEARCH(
 		R.drawable.search_fill,
@@ -36,7 +36,7 @@ enum class TopLevelDestination(
 	SETTING(
 		R.drawable.cog_fill,
 		R.drawable.cog_outline,
-		"Profile",
+		"Setting",
 		settingRoute
 	),
 }

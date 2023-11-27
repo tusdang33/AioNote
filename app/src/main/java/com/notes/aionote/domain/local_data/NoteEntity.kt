@@ -21,4 +21,5 @@ class NoteEntity : RealmObject {
 	var noteType: Int = 0
 	var category: CategoryEntity? = null
 	var deadLine: Long? = null
+	var version : Long = 1
 }

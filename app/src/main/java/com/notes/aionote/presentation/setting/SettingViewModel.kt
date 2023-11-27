@@ -1,16 +1,20 @@
 package com.notes.aionote.presentation.setting
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
 import com.notes.aionote.common.AioDispatcher
 import com.notes.aionote.common.Dispatcher
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
+import com.notes.aionote.common.fail
 import com.notes.aionote.common.success
 import com.notes.aionote.domain.repository.AuthRepository
+import com.notes.aionote.domain.repository.SyncRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
 	private val authRepository: AuthRepository,
+	private val syncRepository: SyncRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
 ):
 	RootViewModel<SettingUiState, SettingOneTimeEvent, SettingEvent>() {
@@ -37,7 +42,8 @@ class SettingViewModel @Inject constructor(
 					uiState.copy(
 						userImage = if (user.photoUrl != null) user.photoUrl.toString() else null,
 						userName = user.displayName?.ifBlank { null },
-						userEmail = user.email ?: ""
+						userEmail = user.email ?: "",
+						userId = user.uid
 					)
 				}
 			}
@@ -62,8 +68,12 @@ class SettingViewModel @Inject constructor(
 				logout()
 			}
 			
-			SettingEvent.OnChangePassword -> {
+			SettingEvent.OnChangePassword -> viewModelScope.launch {
 				sendEvent(SettingOneTimeEvent.OnChangePassword(_settingUiState.value.userEmail))
+			}
+			
+			SettingEvent.OnSync -> {
+				syncToRemote(_settingUiState.value.userId)
 			}
 			
 			SettingEvent.OnEditProfile -> {
@@ -80,6 +90,23 @@ class SettingViewModel @Inject constructor(
 			SettingEvent.OnFetchUserData -> {
 				fetchUserData()
 			}
+		}
+	}
+	
+	private fun syncToRemote(userId: String) = viewModelScope.launch(NonCancellable) {
+		_settingUiState.update {
+			it.copy(
+				isSyncing = true
+			)
+		}
+		syncRepository.sync(userId).success {
+			_settingUiState.update {
+				it.copy(
+					isSyncing = false
+				)
+			}
+		}.fail {
+			
 		}
 	}
 	
@@ -111,7 +138,9 @@ data class SettingUiState(
 	override val errorMessage: String? = null,
 	val userImage: String? = null,
 	val userName: String? = null,
-	val userEmail: String = ""
+	val userEmail: String = "",
+	val userId: String = "",
+	val isSyncing : Boolean = false
 ): RootState.ViewUiState
 
 sealed class SettingEvent: RootState.ViewEvent {
@@ -119,4 +148,5 @@ sealed class SettingEvent: RootState.ViewEvent {
 	object OnFetchUserData: SettingEvent()
 	object OnEditProfile: SettingEvent()
 	object OnChangePassword: SettingEvent()
+	object OnSync: SettingEvent()
 }

@@ -1,5 +1,10 @@
 package com.notes.aionote.presentation.setting
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
@@ -119,7 +125,7 @@ fun SettingScreen(
 					rememberAsyncImagePainter(model = settingUiState.userImage)
 				else painterResource(id = R.drawable.man),
 				contentDescription = null,
-				contentScale = ContentScale.Fit
+				contentScale = ContentScale.Crop
 			)
 			
 			Spacer(modifier = Modifier.width(15.dp))
@@ -199,6 +205,36 @@ fun SettingScreen(
 		) {
 			Text(
 				text = stringResource(id = R.string.change_pass),
+				style = AioTheme.mediumTypography.base
+			)
+		}
+		
+		val infiniteTransition = rememberInfiniteTransition()
+		val angle by infiniteTransition.animateFloat(
+			initialValue = 360F,
+			targetValue = 0F,
+			animationSpec = infiniteRepeatable(
+				animation = tween(2000, easing = LinearEasing)
+			)
+		)
+		
+		AioButton(
+			modifier = Modifier.fillMaxWidth(),
+			enableColor = Color.Transparent,
+			shape = RoundedCornerShape(0.dp),
+			leadingIcon = {
+				Icon(
+					modifier = Modifier.graphicsLayer {
+						rotationZ = angle
+					},
+					painter = painterResource(id = R.drawable.sync_outline),
+					contentDescription = null
+				)
+			},
+			onClick = { onEvent(SettingEvent.OnSync) }
+		) {
+			Text(
+				text = stringResource(id = R.string.sync),
 				style = AioTheme.mediumTypography.base
 			)
 		}

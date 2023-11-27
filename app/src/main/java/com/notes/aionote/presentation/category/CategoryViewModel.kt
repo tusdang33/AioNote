@@ -10,6 +10,7 @@ import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.DefaultCategory
 import com.notes.aionote.common.Dispatcher
 import com.notes.aionote.common.RepoType
+import com.notes.aionote.common.Resource
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.success
@@ -26,6 +27,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,11 +35,10 @@ import javax.inject.Inject
 @HiltViewModel
 class CategoryViewModel @Inject constructor(
 	private val savedStateHandle: SavedStateHandle,
-	@RepoType(AioRepoType.LOCAL) private val localNoteRepository: NoteRepository,
-	@RepoType(AioRepoType.LOCAL) private val localCategoryRepository: CategoryRepository,
+	private val localNoteRepository: NoteRepository,
+	private val localCategoryRepository: CategoryRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 	@Dispatcher(AioDispatcher.Main) private val mainDispatcher: CoroutineDispatcher,
-	private val audioRecorder: AudioRecorder,
 ) : RootViewModel<CategoryUiState, CategoryOneTimeEvent, CategoryEvent>() {
 	private val creatingCategoryNoteId: String? = savedStateHandle["noteId"]
 	
@@ -51,7 +52,7 @@ class CategoryViewModel @Inject constructor(
 		fetchAllCategory()
 	}
 	
-	private fun fetchAllCategory() = viewModelScope.launch {
+	private fun fetchAllCategory() = viewModelScope.launch(ioDispatcher)   {
 		localCategoryRepository.getAllCategory().collect { resourceCategory ->
 			resourceCategory.success { listCategory ->
 				_categoryUiState.update { uiState ->

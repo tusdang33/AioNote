@@ -141,7 +141,7 @@ fun EditProfileScreen(
 				rememberAsyncImagePainter(model = editProfileUiState.image)
 			else painterResource(id = R.drawable.man),
 			contentDescription = null,
-			contentScale = ContentScale.Fit
+			contentScale = ContentScale.Crop
 		
 		)
 		

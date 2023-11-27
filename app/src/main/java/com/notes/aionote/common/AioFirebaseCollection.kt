@@ -7,5 +7,7 @@ import javax.inject.Qualifier
 annotation class CollectionRef(val aioFirebaseCollection: AioFirebaseCollection)
 
 enum class AioFirebaseCollection(val ref: String) {
-	USER("user")
+	USER("user"),
+	NOTE("note"),
+	INFO("info"),
 }

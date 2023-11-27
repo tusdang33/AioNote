@@ -1,5 +1,6 @@
 package com.notes.aionote.presentation.note.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ fun AioTextNote(
 ) {
 	AioTextField(
 		modifier = modifier
+			.fillMaxWidth()
 			.onKeyEvent {
 				if (it.key.keyCode == 287762808832 && text.isEmpty()) {
 					onDeleteCheckbox.invoke()

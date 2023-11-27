@@ -43,8 +43,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
 	private val savedStateHandle: SavedStateHandle,
-	@RepoType(AioRepoType.LOCAL) private val localNoteRepository: NoteRepository,
-	@RepoType(AioRepoType.LOCAL) private val localCategoryRepository: CategoryRepository,
+	private val localNoteRepository: NoteRepository,
+	private val localCategoryRepository: CategoryRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 	@Dispatcher(AioDispatcher.Main) private val mainDispatcher: CoroutineDispatcher,
 	private val audioRecorder: AudioRecorder,

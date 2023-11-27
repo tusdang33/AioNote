@@ -60,4 +60,11 @@
     <string name="submit_new_pass">Submit New Password</string>
     <string name="change_pass_success">Change Password Success</string>
     <string name="change_pass_fail">Change Password Fail</string>
+
+    //Sync
+    <string name="sync">Sync</string>
+
+    //Search
+    <string name="searching">Search…</string>
+
 </resources>

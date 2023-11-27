@@ -1,10 +1,9 @@
 package com.notes.aionote.di
 
-import com.notes.aionote.common.AioRepoType
-import com.notes.aionote.common.RepoType
 import com.notes.aionote.data.repository.LocalCategoryRepositoryImpl
-import com.notes.aionote.data.repository.LocalNoteRepositoryImpl
+import com.notes.aionote.data.repository.NoteRepositoryImpl
 import com.notes.aionote.domain.local_data.CategoryEntity
+import com.notes.aionote.domain.local_data.DeletedNoteEntity
 import com.notes.aionote.domain.local_data.NoteContentEntity
 import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.CategoryRepository
@@ -27,7 +26,8 @@ object DatabaseModule {
 			schema = setOf(
 				NoteEntity::class,
 				NoteContentEntity::class,
-				CategoryEntity::class
+				CategoryEntity::class,
+				DeletedNoteEntity::class
 			)
 		).compactOnLaunch().build()
 		return Realm.open(config)
@@ -35,13 +35,11 @@ object DatabaseModule {
 	
 	@Provides
 	@Singleton
-	@RepoType(AioRepoType.LOCAL)
 	fun provideRealmNoteRepository(realm: Realm): NoteRepository =
-		LocalNoteRepositoryImpl(realm = realm)
+		NoteRepositoryImpl(realm = realm)
 	
 	@Provides
 	@Singleton
-	@RepoType(AioRepoType.LOCAL)
 	fun provideRealmCategoryRepository(realm: Realm): CategoryRepository =
 		LocalCategoryRepositoryImpl(realm = realm)
 }

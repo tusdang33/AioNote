@@ -2,6 +2,7 @@ package com.notes.aionote.presentation.note.task
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
@@ -12,9 +13,7 @@ import com.notes.aionote.common.AioConst.NOTIFICATION_ID
 import com.notes.aionote.common.AioConst.NOTIFICATION_TITLE
 import com.notes.aionote.common.AioConst.NOTIFICATION_WORK
 import com.notes.aionote.common.AioDispatcher
-import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.Dispatcher
-import com.notes.aionote.common.RepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.success
@@ -30,6 +29,7 @@ import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,8 +43,9 @@ import javax.inject.Inject
 class TaskViewModel @Inject constructor(
 	private val savedStateHandle: SavedStateHandle,
 	private val instanceWorkManager: WorkManager,
-	@RepoType(AioRepoType.LOCAL) private val noteRepository: NoteRepository,
+	private val noteRepository: NoteRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
+	@Dispatcher(AioDispatcher.Main) private val mainDispatcher: CoroutineDispatcher,
 ): RootViewModel<TaskUiState, TaskOneTimeEvent, TaskEvent>() {
 	private val currentTaskId: String = checkNotNull(savedStateHandle["taskId"])
 	
@@ -56,18 +57,20 @@ class TaskViewModel @Inject constructor(
 	override val uiState: StateFlow<TaskUiState> = _taskUiState.asStateFlow()
 	
 	init {
-		if (currentTaskId != "null") {
-			noteRepository.getNoteById(currentTaskId).success { noteEntity ->
-				val note = noteEntity?.toNote()
-				if (note != null) {
-					_taskUiState.update { uiState ->
-						uiState.copy(
-							listCheckNote = uiState.listCheckNote.apply {
-								clear()
-								addAll(note.notes.map { it as CheckNote })
-							},
-							deadline = note.deadLine,
-						)
+		viewModelScope.launch {
+			if (currentTaskId != "null") {
+				noteRepository.getNoteById(currentTaskId).success { noteEntity ->
+					val note = noteEntity?.toNote()
+					if (note != null) {
+						_taskUiState.update { uiState ->
+							uiState.copy(
+								listCheckNote = uiState.listCheckNote.apply {
+									clear()
+									addAll(note.notes.map { it as CheckNote })
+								},
+								deadline = note.deadLine,
+							)
+						}
 					}
 				}
 			}
@@ -98,13 +101,19 @@ class TaskViewModel @Inject constructor(
 				}
 			}
 			
-			is TaskEvent.AddCheckNote -> {
+			is TaskEvent.AddCheckNote -> viewModelScope.launch(mainDispatcher) {
 				_taskUiState.update {
 					it.copy(
 						listCheckNote = it.listCheckNote.apply {
 							add(event.index + 1, CheckNote())
 						}
 					)
+				}
+				delay(100L)
+				try {
+					_taskUiState.value.focusRequester.requestFocus()
+				} catch (e: Exception) {
+					/* ignore focus */
 				}
 			}
 			
@@ -193,7 +202,8 @@ data class TaskUiState(
 	override val errorMessage: String? = null,
 	val listCheckNote: SnapshotStateList<CheckNote> = mutableStateListOf(CheckNote()),
 	val deadline: Long? = null,
-	val isShowDialog: Boolean = false
+	val isShowDialog: Boolean = false,
+	val focusRequester: FocusRequester = FocusRequester()
 ): RootState.ViewUiState
 
 sealed interface TaskOneTimeEvent: RootState.OneTimeEvent<TaskUiState> {

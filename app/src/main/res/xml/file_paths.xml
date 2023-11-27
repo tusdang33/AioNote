@@ -6,4 +6,11 @@
     <cache-path
         name="image"
         path="image/" />
+    <files-path
+        name="video"
+        path="video/" />
+    <cache-path
+        name="video"
+        path="video/" />
+    <cache-path name="external_files" path="."/>
 </paths>
