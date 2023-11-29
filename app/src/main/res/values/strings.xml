@@ -63,6 +63,7 @@
 
     //Sync
     <string name="sync">Sync</string>
+    <string name="syncing">Syncing…</string>
 
     //Search
     <string name="searching">Search…</string>

@@ -2,7 +2,6 @@ package com.notes.aionote.data.repository
 
 import android.content.Intent
 import android.content.IntentSender
-import android.util.Log
 import androidx.core.net.toUri
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -15,9 +14,9 @@ import com.notes.aionote.common.AioFirebaseCollection
 import com.notes.aionote.common.CollectionRef
 import com.notes.aionote.common.FirebaseConst
 import com.notes.aionote.common.Resource
-import com.notes.aionote.data.model.User
 import com.notes.aionote.domain.remote_data.FireUserEntity
 import com.notes.aionote.domain.repository.AuthRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -37,18 +36,20 @@ class AuthRepositoryImp @Inject constructor (
 		}
 	}
 	
-	override suspend fun getUserNoteRef(userId: String): Resource<String> {
-		var result = ""
+	override suspend fun getUserNoteRef(userId: String): Resource<String?> {
 		return try {
+			val completableDeferred = CompletableDeferred<String?>()
 			fireStoreUserCollection.document(userId)
 				.collection(FirebaseConst.FIREBASE_INFO_COL_REF)
 				.document(userId)
 				.get().addOnSuccessListener { snapshot ->
-					result = snapshot.toObject<FireUserEntity>()?.noteContentRef ?: ""
-				}.await()
-			Resource.Success(result)
+					completableDeferred.complete(
+						snapshot.toObject<FireUserEntity>()?.noteContentRef
+					)
+				}
+			Resource.Success(completableDeferred.await())
 		} catch (e: Exception) {
-			Resource.Fail(errorMessage = e.message)
+			Resource.Fail(errorMessage = "Get user note ref fail ${e.message}")
 		}
 	}
 	

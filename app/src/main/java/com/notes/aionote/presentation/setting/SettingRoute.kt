@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,15 +33,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.work.WorkManager
 import coil.compose.rememberAsyncImagePainter
 import com.notes.aionote.R
 import com.notes.aionote.collectInLaunchedEffectWithLifecycle
+import com.notes.aionote.common.FirebaseConst
 import com.notes.aionote.ui.component.AioActionBar
 import com.notes.aionote.ui.component.AioButton
 import com.notes.aionote.ui.theme.AioComposeTheme
@@ -225,7 +229,7 @@ fun SettingScreen(
 			leadingIcon = {
 				Icon(
 					modifier = Modifier.graphicsLayer {
-						rotationZ = angle
+						rotationZ =  if(settingUiState.isSyncing) angle else 0f
 					},
 					painter = painterResource(id = R.drawable.sync_outline),
 					contentDescription = null
@@ -234,7 +238,7 @@ fun SettingScreen(
 			onClick = { onEvent(SettingEvent.OnSync) }
 		) {
 			Text(
-				text = stringResource(id = R.string.sync),
+				text = stringResource(id = if(settingUiState.isSyncing) R.string.syncing else R.string.sync ),
 				style = AioTheme.mediumTypography.base
 			)
 		}

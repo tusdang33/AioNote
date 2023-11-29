@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.notes.aionote.common.AioConst.NOTIFICATION_ID
 import com.notes.aionote.common.AioConst.NOTIFICATION_TITLE
@@ -159,7 +160,7 @@ class TaskViewModel @Inject constructor(
 	}
 	
 	private fun setReminder(delay: Long = 3000L, title: String = "This is title") {
-		val notificationWork = OneTimeWorkRequest.Builder(ReminderWork::class.java)
+		val notificationWork = OneTimeWorkRequestBuilder<ReminderWork>()
 			.setInitialDelay(delay, TimeUnit.MILLISECONDS)
 			.setInputData(
 				Data.Builder()

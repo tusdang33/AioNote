@@ -9,7 +9,7 @@ import com.notes.aionote.domain.remote_data.FireUserEntity
 interface AuthRepository {
 	suspend fun <T> getCurrentUser(): Resource<T>
 	
-	suspend fun getUserNoteRef(userId: String) : Resource<String>
+	suspend fun getUserNoteRef(userId: String) : Resource<String?>
 	suspend fun login(
 		email: String,
 		pass: String

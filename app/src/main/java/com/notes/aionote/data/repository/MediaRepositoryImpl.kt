@@ -67,7 +67,6 @@ class MediaRepositoryImpl @Inject constructor(
 			)
 			Resource.Success(fileUri.toString())
 		} catch (e: Exception) {
-			Log.e("tudm", "fail : $e ", )
 			Resource.Fail(e.message)
 		}
 	}

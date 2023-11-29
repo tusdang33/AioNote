@@ -13,7 +13,6 @@ import com.notes.aionote.common.Resource
 import com.notes.aionote.common.fail
 import com.notes.aionote.common.success
 import com.notes.aionote.data.model.toFireNote
-import com.notes.aionote.data.model.toNote
 import com.notes.aionote.data.model.toNoteEntity
 import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.remote_data.FireNoteEntity
@@ -22,6 +21,8 @@ import com.notes.aionote.domain.repository.MediaRepository
 import com.notes.aionote.domain.repository.NoteRepository
 import com.notes.aionote.domain.repository.SyncRepository
 import io.realm.kotlin.ext.toRealmList
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -31,59 +32,64 @@ class SyncRepositoryImpl @Inject constructor(
 	private val mediaRepository: MediaRepository,
 	@CollectionRef(AioFirebaseCollection.USER) private val fireStoreUserCollection: CollectionReference,
 ): SyncRepository {
-	
-	private var _remoteData = listOf<FireNoteEntity>()
-	private var _localData = listOf<NoteEntity>()
-	
-	private fun compareNoteForLocalSync(): Pair<List<NoteEntity>, List<NoteEntity>> {
+	private fun compareNoteForLocalSync(
+		remoteData: List<FireNoteEntity>,
+		localData: List<NoteEntity>
+	): Pair<List<NoteEntity>, List<NoteEntity>> {
 		val newNote = mutableListOf<NoteEntity>()
 		val updateNote = mutableListOf<NoteEntity>()
-		newNote.addAll(_remoteData.filter { fireNote ->
-			val existNoteInLocal = _localData.firstOrNull { noteEntity ->
+		newNote.addAll(remoteData.filter { fireNote ->
+			val existNoteInLocal = localData.firstOrNull { noteEntity ->
 				noteEntity.noteId.toHexString() == fireNote.noteId
 			}
 			if (existNoteInLocal != null && existNoteInLocal.version < fireNote.version) {
 				updateNote.add(fireNote.toNoteEntity())
 			}
-			fireNote.noteId !in _localData.map { it.noteId.toHexString() }
+			fireNote.noteId !in localData.map { it.noteId.toHexString() }
 		}.map { it.toNoteEntity() })
 		
 		return Pair(newNote, updateNote)
 	}
 	
-	private fun compareNoteForRemoteSync(): Pair<List<FireNoteEntity>, List<FireNoteEntity>> {
+	private fun compareNoteForRemoteSync(
+		remoteData: List<FireNoteEntity>,
+		localData: List<NoteEntity>
+	): Pair<List<FireNoteEntity>, List<FireNoteEntity>> {
 		val newNote = mutableListOf<FireNoteEntity>()
 		val updateNote = mutableListOf<FireNoteEntity>()
-		newNote.addAll(_localData.filter { noteEntity ->
-			val existNoteInRemote = _remoteData.firstOrNull { fireNote ->
+		newNote.addAll(localData.filter { noteEntity ->
+			val existNoteInRemote = remoteData.firstOrNull { fireNote ->
 				fireNote.noteId == noteEntity.noteId.toHexString()
 			}
-			Log.e(
-				"tudm",
-				"compareNoteForRemoteSync: $_remoteData and ${_localData.map { it.toFireNote() }} ",
-			)
 			if (existNoteInRemote != null && existNoteInRemote.version < noteEntity.version) {
 				updateNote.add(noteEntity.toFireNote())
 			}
-			noteEntity.noteId.toHexString() !in _remoteData.map { it.noteId }
+			noteEntity.noteId.toHexString() !in remoteData.map { it.noteId }
 		}.map { it.toFireNote() })
 		
 		return Pair(newNote, updateNote)
 	}
 	
-	private suspend fun getLocalData() {
+	private suspend fun getLocalData() : List<NoteEntity> {
+		val completableDeferred = CompletableDeferred<List<NoteEntity>>()
+		
 		noteRepository.getSnapShotOfAllNote().success {
-			_localData = it ?: listOf()
+			val localData = it ?: listOf()
+			completableDeferred.complete(localData)
 		}
+		
+		return completableDeferred.await()
 	}
 	
-	private suspend fun getRemoteData(userId: String) {
+	private suspend fun getRemoteData(userId: String) : List<FireNoteEntity> {
+		val completableDeferred = CompletableDeferred<List<FireNoteEntity>>()
 		fireStoreUserCollection.document(userId)
 			.collection(FirebaseConst.FIREBASE_NOTE_COL_REF)
 			.get()
 			.addOnSuccessListener { snapshot ->
-				_remoteData = snapshot.documents.mapNotNull { it.toObject<FireNoteEntity>() }
-			}.await()
+				completableDeferred.complete(snapshot.documents.mapNotNull { it.toObject<FireNoteEntity>() })
+			}
+		return completableDeferred.await()
 	}
 	
 	private suspend fun downloadMedia(
@@ -145,10 +151,11 @@ class SyncRepositoryImpl @Inject constructor(
 	}
 	
 	private suspend fun getUserNoteRef(userId: String): String? {
+		val completableDeferred = CompletableDeferred<String?>()
 		authRepository.getUserNoteRef(userId).success {
-			return it
+			completableDeferred.complete(it)
 		}
-		return null
+		return completableDeferred.await()
 	}
 	
 	private suspend fun syncDeletedNote(userNoteDocumentRef: CollectionReference) {
@@ -161,8 +168,8 @@ class SyncRepositoryImpl @Inject constructor(
 		}
 	}
 	
-	private suspend fun syncToDevice(userId: String) {
-		val pairNote = compareNoteForLocalSync()
+	private suspend fun syncToDevice(userId: String, remoteData: List<FireNoteEntity>, localData: List<NoteEntity>) {
+		val pairNote = compareNoteForLocalSync(remoteData, localData)
 		val prepareListNote = downloadMedia(
 			listNote = pairNote.first + pairNote.second,
 			userId = userId
@@ -177,9 +184,11 @@ class SyncRepositoryImpl @Inject constructor(
 	
 	private suspend fun syncToRemote(
 		userId: String,
-		userNoteDocumentRef: CollectionReference
+		userNoteDocumentRef: CollectionReference,
+		remoteData: List<FireNoteEntity>,
+		localData: List<NoteEntity>
 	) {
-		val pairNote = compareNoteForRemoteSync()
+		val pairNote = compareNoteForRemoteSync(remoteData, localData)
 		val prepareListNote = uploadMedia(notes = pairNote.first + pairNote.second, userId = userId)
 		Firebase.firestore.runTransaction { transaction ->
 			prepareListNote.forEach { fireNote ->
@@ -194,19 +203,18 @@ class SyncRepositoryImpl @Inject constructor(
 	
 	override suspend fun sync(userId: String): Resource<Unit> {
 		return try {
-			val userNoteRef = getUserNoteRef(userId) ?: throw Exception("Sync To Remote Fail")
+			val userNoteRef = getUserNoteRef(userId) ?: throw Exception("Get user note ref fail")
 			val userNoteDocumentRef = fireStoreUserCollection.document(userNoteRef)
 				.collection(FirebaseConst.FIREBASE_NOTE_COL_REF)
+
 			syncDeletedNote(userNoteDocumentRef)
-			getLocalData()
-			getRemoteData(userId)
+			val localData =  getLocalData()
+			val remoteData = getRemoteData(userId)
 			
-			syncToDevice(userId)
-			syncToRemote(userId, userNoteDocumentRef)
-			
+			syncToDevice(userId, remoteData, localData)
+			syncToRemote(userId, userNoteDocumentRef, remoteData, localData)
 			Resource.Success(Unit)
 		} catch (e: Exception) {
-			Log.e("tudm", "sync: ${e.message} ", )
 			Resource.Fail(errorMessage = e.message)
 		}
 	}
