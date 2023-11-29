@@ -14,10 +14,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.work.WorkManager
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.notes.aionote.common.AioConst
 import com.notes.aionote.ui.theme.AioComposeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp

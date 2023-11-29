@@ -42,7 +42,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NoteViewModel @Inject constructor(
 	private val savedStateHandle: SavedStateHandle,
-	@RepoType(AioRepoType.LOCAL) private val noteRepository: NoteRepository,
+	private val noteRepository: NoteRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 	private val audioPlayer: AudioPlayer,
 	private val audioRecorder: AudioRecorder
@@ -58,25 +58,26 @@ class NoteViewModel @Inject constructor(
 	override val uiState: StateFlow<NoteUiState> = _noteUiState.asStateFlow()
 	
 	init {
-		if (currentNoteId != "null") {
-			noteRepository.getNoteById(currentNoteId).success {
-				val note = it?.toNote(audioRecorder)
-				if (note != null) {
-					_noteUiState.update { uiState ->
-						uiState.copy(
-							title = note.title,
-							currentTime = note.createTime,
-							listNote = uiState.listNote.apply {
-								clear()
-								addAll(note.notes)
-							}
-						)
+		viewModelScope.launch {
+			if (currentNoteId != "null") {
+				noteRepository.getNoteById(currentNoteId).success {
+					val note = it?.toNote(audioRecorder)
+					if (note != null) {
+						_noteUiState.update { uiState ->
+							uiState.copy(
+								title = note.title,
+								currentTime = note.createTime,
+								listNote = uiState.listNote.apply {
+									clear()
+									addAll(note.notes)
+								}
+							)
+						}
 					}
+				}.fail {
+					failHandle(it)
 				}
-			}.fail {
-				failHandle(it)
 			}
-			
 		}
 	}
 	

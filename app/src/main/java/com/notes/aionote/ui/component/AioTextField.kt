@@ -2,11 +2,12 @@ package com.notes.aionote.ui.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -14,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -29,24 +29,29 @@ fun AioTextField(
 	textStyle: TextStyle = AioTheme.regularTypography.base,
 	textFieldColors: Color = AioTheme.neutralColor.white,
 	onTextChange: (String) -> Unit,
+	singleLine : Boolean = false,
+	contentPadding: PaddingValues = PaddingValues(0.dp),
+	keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+	keyboardActions: KeyboardActions = KeyboardActions.Default,
 	placeholder: @Composable (() -> Unit)? = null,
 ) {
 	
 	BasicTextField(
 		modifier = modifier
 			.focusRequester(focusRequester)
-			.height(IntrinsicSize.Min)
-			.fillMaxWidth(),
+			.height(IntrinsicSize.Min),
 		value = text,
 		textStyle = textStyle,
 		onValueChange = onTextChange,
+		keyboardOptions = keyboardOptions,
+		keyboardActions = keyboardActions,
 		decorationBox = { innerTextField ->
 			TextFieldDefaults.DecorationBox(
 				value = text,
 				innerTextField = innerTextField,
 				enabled = true,
 				placeholder = placeholder,
-				singleLine = false,
+				singleLine = singleLine,
 				visualTransformation = VisualTransformation.None,
 				interactionSource = remember { MutableInteractionSource() },
 				supportingText = null,
@@ -57,9 +62,7 @@ fun AioTextField(
 					focusedIndicatorColor = textFieldColors,
 					unfocusedIndicatorColor = textFieldColors
 				),
-				contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
-					0.dp, 0.dp, 0.dp, 0.dp
-				),
+				contentPadding = contentPadding,
 			)
 		}
 	)

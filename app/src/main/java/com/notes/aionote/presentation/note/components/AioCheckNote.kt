@@ -25,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
@@ -42,6 +44,7 @@ fun AioCheckNote(
 	modifier: Modifier = Modifier,
 	checked: Boolean = false,
 	text: String = "",
+	focusRequester: FocusRequester = FocusRequester(),
 	textStyle: TextStyle = AioTheme.regularTypography.base,
 	checkBoxSize: DpSize = DpSize(20.dp, 20.dp),
 	scaleSize: Float = 1f,
@@ -78,6 +81,7 @@ fun AioCheckNote(
 			
 			BasicTextField(
 				modifier = Modifier
+					.focusRequester(focusRequester)
 					.onKeyEvent {
 						Log.e("tudm", "AioCheckNote ${it.key} ",)
 						if (it.key.keyCode == 287762808832 && text.isEmpty()) {

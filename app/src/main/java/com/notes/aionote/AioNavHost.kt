@@ -12,6 +12,7 @@ import com.notes.aionote.presentation.authentication.sign_up.signUpGraph
 import com.notes.aionote.presentation.category.categoryGraph
 import com.notes.aionote.presentation.category.navigateToCategory
 import com.notes.aionote.presentation.home.homeGraph
+import com.notes.aionote.presentation.home.homeRoute
 import com.notes.aionote.presentation.home.navigateToHome
 import com.notes.aionote.presentation.note.navigation.navigateToNote
 import com.notes.aionote.presentation.note.navigation.navigateToTask
@@ -57,7 +58,11 @@ fun AioNavHost(
 				navController.navigateToCategory(noteId = it ?: "")
 			}
 		)
-		searchGraph()
+		searchGraph(
+			onBackClick = {
+				navController.popBackStack()
+			}
+		)
 		saveGraph()
 		settingGraph(
 			navigateToSignIn = { navController.navigateToSignIn() },

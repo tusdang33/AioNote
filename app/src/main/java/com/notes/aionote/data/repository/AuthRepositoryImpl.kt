@@ -2,7 +2,6 @@ package com.notes.aionote.data.repository
 
 import android.content.Intent
 import android.content.IntentSender
-import android.util.Log
 import androidx.core.net.toUri
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -10,11 +9,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.ktx.toObject
 import com.notes.aionote.common.AioFirebaseCollection
 import com.notes.aionote.common.CollectionRef
+import com.notes.aionote.common.FirebaseConst
 import com.notes.aionote.common.Resource
 import com.notes.aionote.domain.remote_data.FireUserEntity
 import com.notes.aionote.domain.repository.AuthRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -24,12 +26,30 @@ class AuthRepositoryImp @Inject constructor (
 	@CollectionRef(AioFirebaseCollection.USER) private val fireStoreUserCollection : CollectionReference,
 ) : AuthRepository {
 	private val firebaseAuth = FirebaseAuth.getInstance()
+	
 	@Suppress("UNCHECKED_CAST")
 	override suspend fun <T> getCurrentUser(): Resource<T> {
 		return try {
 			Resource.Success(result = firebaseAuth.currentUser as T)
 		} catch (e: Exception) {
 			Resource.Fail(errorMessage = e.message)
+		}
+	}
+	
+	override suspend fun getUserNoteRef(userId: String): Resource<String?> {
+		return try {
+			val completableDeferred = CompletableDeferred<String?>()
+			fireStoreUserCollection.document(userId)
+				.collection(FirebaseConst.FIREBASE_INFO_COL_REF)
+				.document(userId)
+				.get().addOnSuccessListener { snapshot ->
+					completableDeferred.complete(
+						snapshot.toObject<FireUserEntity>()?.noteContentRef
+					)
+				}
+			Resource.Success(completableDeferred.await())
+		} catch (e: Exception) {
+			Resource.Fail(errorMessage = "Get user note ref fail ${e.message}")
 		}
 	}
 	
@@ -69,6 +89,8 @@ class AuthRepositoryImp @Inject constructor (
 			fireUser.updateProfile(profileUpdate).await()
 			val user = FireUserEntity(fireUser.uid, fullName, email, null, fireUser.uid)
 			fireStoreUserCollection.document(fireUser.uid)
+				.collection("info")
+				.document(fireUser.uid)
 				.set(user)
 				.await()
 			Resource.Success(user)

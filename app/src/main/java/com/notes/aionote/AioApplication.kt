@@ -8,15 +8,17 @@ import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import com.notes.aionote.common.AioConst.NOTIFICATION_CHANNEL
 import com.notes.aionote.common.AioConst.NOTIFICATION_NAME
-import com.notes.aionote.worker.ReminderWork
 import dagger.hilt.android.HiltAndroidApp
-
-
+import javax.inject.Inject
 
 @HiltAndroidApp
-class AioApplication: Application() {
+class AioApplication: Application(), Configuration.Provider {
+	@Inject
+	lateinit var workerFactory: HiltWorkerFactory
 	override fun onCreate() {
 		super.onCreate()
 		createNotificationChannel()
@@ -45,5 +47,11 @@ class AioApplication: Application() {
 			channel.setSound(ringtoneManager, audioAttributes)
 			notificationManager.createNotificationChannel(channel)
 		}
+	}
+	
+	override fun getWorkManagerConfiguration(): Configuration {
+		return Configuration.Builder()
+			.setWorkerFactory(workerFactory)
+			.build()
 	}
 }

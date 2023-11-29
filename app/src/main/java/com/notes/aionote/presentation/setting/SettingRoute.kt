@@ -1,5 +1,10 @@
 package com.notes.aionote.presentation.setting
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,17 +30,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.work.WorkManager
 import coil.compose.rememberAsyncImagePainter
 import com.notes.aionote.R
 import com.notes.aionote.collectInLaunchedEffectWithLifecycle
+import com.notes.aionote.common.FirebaseConst
 import com.notes.aionote.ui.component.AioActionBar
 import com.notes.aionote.ui.component.AioButton
 import com.notes.aionote.ui.theme.AioComposeTheme
@@ -119,7 +129,7 @@ fun SettingScreen(
 					rememberAsyncImagePainter(model = settingUiState.userImage)
 				else painterResource(id = R.drawable.man),
 				contentDescription = null,
-				contentScale = ContentScale.Fit
+				contentScale = ContentScale.Crop
 			)
 			
 			Spacer(modifier = Modifier.width(15.dp))
@@ -199,6 +209,36 @@ fun SettingScreen(
 		) {
 			Text(
 				text = stringResource(id = R.string.change_pass),
+				style = AioTheme.mediumTypography.base
+			)
+		}
+		
+		val infiniteTransition = rememberInfiniteTransition()
+		val angle by infiniteTransition.animateFloat(
+			initialValue = 360F,
+			targetValue = 0F,
+			animationSpec = infiniteRepeatable(
+				animation = tween(2000, easing = LinearEasing)
+			)
+		)
+		
+		AioButton(
+			modifier = Modifier.fillMaxWidth(),
+			enableColor = Color.Transparent,
+			shape = RoundedCornerShape(0.dp),
+			leadingIcon = {
+				Icon(
+					modifier = Modifier.graphicsLayer {
+						rotationZ =  if(settingUiState.isSyncing) angle else 0f
+					},
+					painter = painterResource(id = R.drawable.sync_outline),
+					contentDescription = null
+				)
+			},
+			onClick = { onEvent(SettingEvent.OnSync) }
+		) {
+			Text(
+				text = stringResource(id = if(settingUiState.isSyncing) R.string.syncing else R.string.sync ),
 				style = AioTheme.mediumTypography.base
 			)
 		}

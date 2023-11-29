@@ -24,9 +24,8 @@ import com.notes.aionote.presentation.home.navigateToHome
 import com.notes.aionote.presentation.note.navigation.navigateToNote
 import com.notes.aionote.presentation.note.navigation.navigateToTask
 import com.notes.aionote.presentation.note.navigation.noteRoute
-import com.notes.aionote.presentation.note.navigation.taskRoute
 import com.notes.aionote.presentation.save.navigateToSave
-import com.notes.aionote.presentation.save.saveRoute
+import com.notes.aionote.presentation.save.finishedRoute
 import com.notes.aionote.presentation.search.navigateToSearch
 import com.notes.aionote.presentation.search.searchRoute
 import com.notes.aionote.presentation.setting.navigation.changePasswordRoute
@@ -69,7 +68,7 @@ class AioAppState @OptIn(ExperimentalMaterialNavigationApi::class) constructor(
 	val currentTopLevelDestination: TopLevelDestination?
 		@Composable get() = when (currentDestination?.route) {
 			homeRoute -> TopLevelDestination.HOME
-			saveRoute -> TopLevelDestination.SAVE
+			finishedRoute -> TopLevelDestination.FINISHED
 			searchRoute -> TopLevelDestination.SEARCH
 			settingRoute -> TopLevelDestination.SETTING
 			else -> null
@@ -119,7 +118,7 @@ class AioAppState @OptIn(ExperimentalMaterialNavigationApi::class) constructor(
 		
 		when (topLevelDestination) {
 			TopLevelDestination.HOME -> navController.navigateToHome()
-			TopLevelDestination.SAVE -> navController.navigateToSave()
+			TopLevelDestination.FINISHED -> navController.navigateToSave()
 			TopLevelDestination.SEARCH -> navController.navigateToSearch()
 			TopLevelDestination.SETTING -> navController.navigateToSetting()
 		}

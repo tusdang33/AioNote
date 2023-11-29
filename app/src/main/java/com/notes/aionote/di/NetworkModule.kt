@@ -11,7 +11,11 @@ import com.notes.aionote.R
 import com.notes.aionote.common.AioFirebaseCollection
 import com.notes.aionote.common.CollectionRef
 import com.notes.aionote.data.repository.AuthRepositoryImp
+import com.notes.aionote.data.repository.MediaRepositoryImpl
+import com.notes.aionote.data.repository.SyncRepositoryImpl
 import com.notes.aionote.domain.repository.AuthRepository
+import com.notes.aionote.domain.repository.MediaRepository
+import com.notes.aionote.domain.repository.SyncRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,6 +32,18 @@ object NetworkModule {
 	fun provideAuthRepository(
 		authRepository: AuthRepositoryImp
 	): AuthRepository = authRepository
+	
+	@Singleton
+	@Provides
+	fun provideSyncRepository(
+		syncRepositoryImpl: SyncRepositoryImpl
+	): SyncRepository = syncRepositoryImpl
+	
+	@Singleton
+	@Provides
+	fun provideMediaRepository(
+		mediaRepositoryImpl: MediaRepositoryImpl
+	): MediaRepository = mediaRepositoryImpl
 	
 	@Singleton
 	@Provides
@@ -53,10 +69,4 @@ object NetworkModule {
 	@CollectionRef(AioFirebaseCollection.USER)
 	fun provideFireStoreUserCollection(): CollectionReference =
 		Firebase.firestore.collection(AioFirebaseCollection.USER.ref)
-	
-	@Singleton
-	@Provides
-	@Named("UserCollection2")
-	fun provideFireStoreAuthCollection2(): CollectionReference =
-		Firebase.firestore.collection("user")
 }

@@ -139,12 +139,12 @@ fun NoteRoute(
 			}
 			
 			NoteOneTimeEvent.PickCamera -> {
-				cameraUri = FileProviderHelper.createUriForMedia(context)
+				cameraUri = FileProviderHelper.createUriForImage(context)
 				cameraLauncher.launch(cameraUri)
 			}
 			
 			NoteOneTimeEvent.PickRecord -> {
-				cameraUri = FileProviderHelper.createUriForMedia(context)
+				cameraUri = FileProviderHelper.createUriForVideo(context)
 				recordLauncher.launch(cameraUri)
 			}
 			
