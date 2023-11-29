@@ -7,9 +7,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.notes.aionote.common.AioDispatcher
-import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.Dispatcher
-import com.notes.aionote.common.RepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.fail
@@ -149,7 +147,7 @@ class NoteViewModel @Inject constructor(
 			}
 			
 			NoteEvent.AddCheckBox -> {
-				addNotes(listOf(CheckNote()))
+				addNotes(listOf(CheckNote()), _noteUiState.value.focusedIndex)
 			}
 			
 			is NoteEvent.AddImage -> {
@@ -223,6 +221,22 @@ class NoteViewModel @Inject constructor(
 				removeNote(event.index)
 			}
 			
+			is NoteEvent.FocusCheckNote -> {
+				_noteUiState.update {
+					it.copy(
+						focusedIndex = event.index
+					)
+				}
+			}
+			
+			is NoteEvent.ChangeImageZoom -> {
+				_noteUiState.update {
+					it.copy(
+						isImageZoomed = event.isZoom
+					)
+				}
+			}
+			
 			is NoteEvent.OnTitleChange -> {
 				_noteUiState.update {
 					it.copy(
@@ -287,12 +301,17 @@ class NoteViewModel @Inject constructor(
 		savedStateHandle["noteId"] = null
 	}
 	
-	private fun addNotes(notes: List<NoteContent>) {
+	private fun addNotes(
+		notes: List<NoteContent>,
+		index: Int = -1,
+	) {
 		_noteUiState.update {
 			it.copy(
 				listNote = it.listNote.apply {
 					notes.forEach { note ->
-						if (it.listNote.size >= 2 && (it.listNote.last() as? TextNote)?.text == "") {
+						if(index != -1 ) {
+							add(index ,note)
+						} else if (it.listNote.size >= 2 && (it.listNote.last() as? TextNote)?.text == "") {
 							add(it.listNote.size - 1, note)
 						} else {
 							add(note)
@@ -328,6 +347,8 @@ data class NoteUiState(
 	override val errorMessage: String? = null,
 	val title: String? = null,
 	val currentTime: Long = System.currentTimeMillis(),
+	val isImageZoomed: Boolean = true,
+	val focusedIndex: Int = -1,
 	val listNote: SnapshotStateList<NoteContent> = mutableStateListOf(TextNote())
 ): RootState.ViewUiState
 
@@ -387,6 +408,8 @@ sealed class NoteEvent: RootState.ViewEvent {
 	data class AddVideo(val path: Uri): NoteEvent()
 	data class AddAttachment(val path: Uri): NoteEvent()
 	data class DeleteItem(val index: Int): NoteEvent()
+	data class FocusCheckNote(val index: Int): NoteEvent()
+	data class ChangeImageZoom(val isZoom: Boolean): NoteEvent()
 	data class PlayOrStopVoice(
 		val index: Int,
 		val isPlaying: Boolean

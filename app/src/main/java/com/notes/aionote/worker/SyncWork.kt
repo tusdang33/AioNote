@@ -37,7 +37,7 @@ class SyncWork @AssistedInject constructor(
 			sendNotification(AioConst.NOTIFICATION_SYNC_ID, "Sync Success")
 			return Result.success()
 		}.fail {
-			sendNotification(AioConst.NOTIFICATION_SYNC_ID, "Sync Fail")
+			sendNotification(AioConst.NOTIFICATION_SYNC_ID, "Sync Fail $it")
 			return Result.failure()
 		}
 		return Result.success()

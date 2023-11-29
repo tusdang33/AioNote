@@ -57,15 +57,26 @@ fun AioNoteToolbar(
 }
 
 enum class NoteToolbarItem: NoteToolBar {
+	
 	ADD_CATEGORY {
 		override val icon: Int = R.drawable.folder_download_outline
 	},
 	DELETE {
 		override val icon: Int = R.drawable.trash_outline
 	},
+	
 }
 
 enum class NoteContentToolbarItem : NoteToolBar {
+	DELETE {
+		override val icon: Int = R.drawable.trash_outline
+	}
+}
+
+enum class ImageNoteContentToolbarItem : NoteToolBar {
+	ZOOM {
+		override val icon: Int = R.drawable.image_zoom
+	},
 	DELETE {
 		override val icon: Int = R.drawable.trash_outline
 	}

@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
@@ -33,14 +31,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notes.aionote.R
-import com.notes.aionote.presentation.note.components.AioNotePreview
+import com.notes.aionote.presentation.note.components.AioGridNotePreview
 import com.notes.aionote.presentation.note.components.NoteToolbarItem
 import com.notes.aionote.ui.component.AioActionBar
 import com.notes.aionote.ui.component.AioTextField
@@ -140,7 +136,7 @@ fun SearchScreen(
 			verticalItemSpacing = 12.dp
 		) {
 			itemsIndexed(searchUiState.searchResult) { index, note ->
-				AioNotePreview(
+				AioGridNotePreview(
 					note = note,
 					onNoteClick = { onEvent(SearchEvent.OnNoteClick(note.noteId)) },
 					onToolbarItemClick = { toolbar ->

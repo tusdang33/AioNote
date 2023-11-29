@@ -56,10 +56,11 @@ class AuthRepositoryImp @Inject constructor (
 	override suspend fun login(
 		email: String,
 		pass: String
-	): Resource<Unit> {
+	): Resource<FireUserEntity> {
 		return try {
-			firebaseAuth.signInWithEmailAndPassword(email, pass).await()
-			Resource.Success(Unit)
+			val fireUser = firebaseAuth.signInWithEmailAndPassword(email, pass).await().user!!
+			val user = FireUserEntity(fireUser.uid, fireUser.displayName, email, null, fireUser.uid)
+			Resource.Success(user)
 		} catch (e: Exception) {
 			Resource.Fail(errorMessage = e.message)
 		}

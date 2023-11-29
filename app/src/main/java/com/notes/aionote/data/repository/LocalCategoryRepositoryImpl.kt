@@ -3,6 +3,7 @@ package com.notes.aionote.data.repository
 import android.util.Log
 import com.notes.aionote.common.Resource
 import com.notes.aionote.domain.local_data.CategoryEntity
+import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.CategoryRepository
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
@@ -45,6 +46,17 @@ class LocalCategoryRepositoryImpl @Inject constructor(
 			).first().find()
 			try {
 				noteEntity?.let { delete(it) }
+			} catch (e: Exception) {
+				Log.d("tudm", "${e.message}")
+			}
+		}
+	}
+	
+	override suspend fun deleteAllCategory() {
+		realm.write {
+			val categoryEntity = query<CategoryEntity>().find()
+			try {
+				delete(categoryEntity)
 			} catch (e: Exception) {
 				Log.d("tudm", "${e.message}")
 			}

@@ -3,6 +3,7 @@ package com.notes.aionote.presentation.note.normal_note
 import AioVideoNote
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,8 +14,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -54,6 +57,7 @@ import com.notes.aionote.presentation.note.components.AioNotePicker
 import com.notes.aionote.presentation.note.components.AioNoteTitle
 import com.notes.aionote.presentation.note.components.AioTextNote
 import com.notes.aionote.presentation.note.components.AioVoiceNote
+import com.notes.aionote.presentation.note.components.ImageNoteContentToolbarItem
 import com.notes.aionote.presentation.note.components.ImagePickerToolbarItem
 import com.notes.aionote.presentation.note.components.NoteContentToolbarItem
 import com.notes.aionote.presentation.note.components.NoteOption
@@ -118,7 +122,9 @@ fun NoteRoute(
 	}
 	
 	NoteScreen(
-		modifier = Modifier.fillMaxSize().imePadding(),
+		modifier = Modifier
+			.fillMaxSize()
+			.imePadding(),
 		noteUiState = noteUiState,
 		onBackClick = onBackClick,
 		onEvent = noteViewModel::onEvent
@@ -182,8 +188,10 @@ fun NoteScreen(
 			Text(text = stringResource(id = R.string.new_note))
 		}
 		
+		Spacer(modifier = Modifier.height(12.dp))
+		
 		AioNoteTitle(
-			modifier = Modifier.padding(horizontal = 20.dp),
+			modifier = Modifier.padding(horizontal = 12.dp),
 			text = noteUiState.title ?: "",
 			currentTime = noteUiState.currentTime,
 			onTextChange = {
@@ -242,6 +250,9 @@ fun NoteScreen(
 							},
 							onDeleteCheckbox = {
 								onEvent(NoteEvent.DeleteItem(index))
+							},
+							onFocus = {
+								onEvent(NoteEvent.FocusCheckNote(index))
 							}
 						)
 					}
@@ -249,9 +260,18 @@ fun NoteScreen(
 					is MediaNote -> {
 						when (note.mediaType) {
 							IMAGE -> {
-								AioImageNote(image = note.mediaPath) { toolbar ->
+								AioImageNote(
+									image = note.mediaPath,
+									zoomed = noteUiState.isImageZoomed
+								) { toolbar ->
 									when (toolbar) {
-										NoteContentToolbarItem.DELETE -> onEvent(NoteEvent.DeleteItem(index))
+										ImageNoteContentToolbarItem.ZOOM -> {
+											onEvent(NoteEvent.ChangeImageZoom(!noteUiState.isImageZoomed))
+										}
+										
+										ImageNoteContentToolbarItem.DELETE -> {
+											onEvent(NoteEvent.DeleteItem(index))
+										}
 									}
 								}
 							}

@@ -117,6 +117,7 @@ class NoteRepositoryImpl @Inject constructor(
 				ObjectId(hexString = categoryId)
 			).first().find()
 			noteEntity?.category = category
+			noteEntity?.version = noteEntity?.version?.plus(1L) ?: 0L
 		}
 	}
 	
@@ -135,11 +136,33 @@ class NoteRepositoryImpl @Inject constructor(
 		}
 	}
 	
+	override suspend fun deleteAllNote() {
+		realm.write {
+			val noteEntity = query<NoteEntity>().find()
+			try {
+				delete(noteEntity)
+			} catch (e: Exception) {
+				Log.d("tudm", "${e.message}")
+			}
+		}
+	}
+	
 	override suspend fun getDeletedNoteId(): Resource<List<String>> {
 		return try {
 			Resource.Success(realm.query<DeletedNoteEntity>().find().mapNotNull { it.deletedId })
 		} catch (e: Exception) {
 			Resource.Fail(e.message)
+		}
+	}
+	
+	override suspend fun deleteAllDeletedNoteId() {
+		realm.write {
+			val deletedNoteEntity = query<DeletedNoteEntity>().find()
+			try {
+				delete(deletedNoteEntity)
+			} catch (e: Exception) {
+				Log.d("tudm", "${e.message}")
+			}
 		}
 	}
 }

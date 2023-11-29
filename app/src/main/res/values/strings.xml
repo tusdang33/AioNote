@@ -65,6 +65,12 @@
     <string name="sync">Sync</string>
     <string name="syncing">Syncing…</string>
 
+    //Change Font Weight
+    <string name="change_font_weight">Change Font Weight</string>
+
+    //Change List Style
+    <string name="change_list_style">List Style</string>
+
     //Search
     <string name="searching">Search…</string>
 

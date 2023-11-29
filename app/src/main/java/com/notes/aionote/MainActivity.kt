@@ -2,30 +2,19 @@ package com.notes.aionote
 
 import android.Manifest
 import android.os.Bundle
-import android.util.Log
-import android.view.Window
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.activity.viewModels
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
 import androidx.core.app.ActivityCompat
-import androidx.work.WorkManager
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.notes.aionote.common.AioConst
-import com.notes.aionote.ui.theme.AioComposeTheme
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 
 @AndroidEntryPoint
 class MainActivity: ComponentActivity() {
+	private val mainViewModel: MainViewModel by viewModels()
 	@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialNavigationApi::class)
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -42,9 +31,8 @@ class MainActivity: ComponentActivity() {
 			0
 		)
 		setContent {
-			AioComposeTheme {
-				AioApp()
-			}
+			val mainUiState by mainViewModel.mainUiState.collectAsStateWithLifecycle()
+			AioApp(mainUiState = mainUiState)
 		}
 	}
 }

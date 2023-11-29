@@ -56,7 +56,7 @@ import java.io.File
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AioNotePreview(
+fun AioGridNotePreview(
 	modifier: Modifier = Modifier,
 	note: Note,
 	maxHeight: Dp = 224.dp,
@@ -212,7 +212,7 @@ fun AioNotePreview(
 @Composable
 private fun PreviewAioNotePreview() {
 	AioComposeTheme {
-		AioNotePreview(
+		AioGridNotePreview(
 			note =
 			Note(
 				noteId = "",

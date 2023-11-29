@@ -1,6 +1,5 @@
 package com.notes.aionote.presentation.category
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,7 +56,7 @@ fun CategoryRoute(
 	)
 	
 	AnimatedVisibility(visible = categoryUiState.isCreatingCategory) {
-		CreatingCategoryBottomSheet(
+		CreatingCategoryDialog(
 			categoryUiState = categoryUiState,
 			onEvent = categoryViewModel::onEvent,
 		)

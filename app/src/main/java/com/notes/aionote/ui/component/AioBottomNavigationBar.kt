@@ -15,6 +15,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -66,10 +67,10 @@ fun AioBottomNavigationBar(
 						onClick = { onNavigateToDestination(itemNavigation) },
 						icon = {
 							AioIconButton(onClick = {}, backgroundColor = Color.Transparent) {
-								Image(
+								Icon(
 									painter = painterResource(
 										id = if (selected) itemNavigation.selectedIconRes else itemNavigation.unselectedIconRes
-									), contentDescription = ""
+									), contentDescription = "", tint =  if (selected) AioTheme.primaryColor.base else AioTheme.neutralColor.black
 								)
 							}
 						},

@@ -36,10 +36,13 @@ import com.notes.aionote.ui.theme.AioTheme
 )
 @Composable
 fun AioApp(
+	mainUiState: MainUiState,
 	appState: AioAppState = rememberAppState(),
 	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
-	AioComposeTheme {
+	AioComposeTheme(
+		fontWeight = mainUiState.fontWeight
+	) {
 		ModalBottomSheetLayout(
 			sheetShape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
 			sheetBackgroundColor = Color.Transparent,
