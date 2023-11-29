@@ -3,15 +3,24 @@ package com.notes.aionote.presentation.authentication.sign_in
 import android.content.Intent
 import android.content.IntentSender
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.notes.aionote.common.AioConst
 import com.notes.aionote.common.AioDispatcher
 import com.notes.aionote.common.Dispatcher
+import com.notes.aionote.common.FirebaseConst
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.fail
 import com.notes.aionote.common.success
 import com.notes.aionote.domain.repository.AuthRepository
+import com.notes.aionote.domain.repository.CategoryRepository
+import com.notes.aionote.domain.repository.NoteRepository
 import com.notes.aionote.domain.use_case.authentication.ValidateEmailUseCase
 import com.notes.aionote.domain.use_case.authentication.ValidatePasswordUseCase
+import com.notes.aionote.worker.SyncWork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -28,6 +37,9 @@ class SignInViewModel @Inject constructor(
 	private val authRepository: AuthRepository,
 	private val validateEmailUseCase: ValidateEmailUseCase,
 	private val validatePasswordUseCase: ValidatePasswordUseCase,
+	private val instanceWorkManager : WorkManager,
+	private val noteRepository: NoteRepository,
+	private val categoryRepository: CategoryRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
 ): RootViewModel<SignInUiState, SignInOneTimeEvent, SignInEvent>() {
 	override val coroutineExceptionHandler: CoroutineExceptionHandler
@@ -104,13 +116,33 @@ class SignInViewModel @Inject constructor(
 			failHandle()
 			return@launch
 		}
+		
+		noteRepository.deleteAllNote()
+		noteRepository.deleteAllDeletedNoteId()
+		categoryRepository.deleteAllCategory()
 		authRepository.login(_signInUiState.value.email, _signInUiState.value.password)
 			.success {
 				sendEvent(SignInOneTimeEvent.Success)
+				syncData(it?.id ?: "")
 			}
 			.fail {
 				failHandle("Sign In Fail")
 			}
+	}
+	
+	private fun syncData(userId: String) {
+		val syncWork = OneTimeWorkRequestBuilder<SyncWork>()
+			.setInputData(
+				Data.Builder()
+					.putString(FirebaseConst.FIREBASE_SYNC_USER_ID, userId)
+					.build()
+			)
+			.build()
+		instanceWorkManager.beginUniqueWork(
+			AioConst.SYNC_WORK,
+			ExistingWorkPolicy.REPLACE,
+			syncWork
+		).enqueue()
 	}
 	
 	private fun getGoogleIntent() = viewModelScope.launch(ioDispatcher) {

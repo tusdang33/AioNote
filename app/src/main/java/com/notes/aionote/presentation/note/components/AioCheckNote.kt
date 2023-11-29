@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
@@ -51,10 +52,12 @@ fun AioCheckNote(
 	checkBoxEnable: Boolean = true,
 	textFieldEnable: Boolean = true,
 	isCheckboxOnly: Boolean = false,
+	maxLines : Int = Int.MAX_VALUE,
 	onCheckedChange: (Boolean) -> Unit = {},
 	onTextChange: (String) -> Unit = {},
 	onDone: () -> Unit = {},
 	onDeleteCheckbox: () -> Unit = {},
+	onFocus: () -> Unit = {},
 ) {
 	
 	Row(
@@ -82,6 +85,11 @@ fun AioCheckNote(
 			BasicTextField(
 				modifier = Modifier
 					.focusRequester(focusRequester)
+					.onFocusChanged {
+						if (it.isFocused) {
+							onFocus.invoke()
+						}
+					}
 					.onKeyEvent {
 						Log.e("tudm", "AioCheckNote ${it.key} ",)
 						if (it.key.keyCode == 287762808832 && text.isEmpty()) {
@@ -94,6 +102,7 @@ fun AioCheckNote(
 					.height(IntrinsicSize.Min)
 					.fillMaxWidth(),
 				value = text,
+				maxLines = maxLines,
 				textStyle = textStyle,
 				enabled = textFieldEnable,
 				onValueChange = onTextChange,
@@ -132,7 +141,8 @@ private fun PreviewAioCheckNote() {
 			onTextChange = {
 				text = it
 			},
-			onDeleteCheckbox = {}
+			onDeleteCheckbox = {},
+			onFocus = {}
 		)
 	}
 }

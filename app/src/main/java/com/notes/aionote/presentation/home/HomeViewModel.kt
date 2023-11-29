@@ -3,13 +3,16 @@ package com.notes.aionote.presentation.home
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.notes.aionote.common.AioConst
 import com.notes.aionote.common.AioDispatcher
-import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.DefaultCategory
 import com.notes.aionote.common.Dispatcher
-import com.notes.aionote.common.RepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.fail
@@ -34,6 +37,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,6 +52,7 @@ class HomeViewModel @Inject constructor(
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 	@Dispatcher(AioDispatcher.Main) private val mainDispatcher: CoroutineDispatcher,
 	private val audioRecorder: AudioRecorder,
+	private val dataStore: DataStore<Preferences>,
 ): RootViewModel<HomeUiState, HomeOneTimeEvent, HomeEvent>() {
 	private val filter: String? = savedStateHandle["filterId"]
 	
@@ -58,15 +63,26 @@ class HomeViewModel @Inject constructor(
 	
 	init {
 		fetchNoteData() {
-			if(!filter.isNullOrBlank()) {
+			if (!filter.isNullOrBlank()) {
 				filterNote(filter)
 			}
 		}
 		fetchCategoryData() {
-			if(!filter.isNullOrBlank()) {
+			if (!filter.isNullOrBlank()) {
 				val filterIndex = _homeUiState.value.listFilter.map { it.category }.indexOf(filter)
 				sendEvent(HomeOneTimeEvent.ScrollToFilter(filterIndex = filterIndex))
 				
+			}
+		}
+		
+		viewModelScope.launch {
+			dataStore.data.collectLatest { pref ->
+				_homeUiState.update { uiState ->
+					uiState.copy(
+						listStyle = pref[booleanPreferencesKey(AioConst.PREFERENCE_KEY_LIST_STYLE)]
+							?: true
+					)
+				}
 			}
 		}
 	}
@@ -252,6 +268,7 @@ data class HomeUiState(
 	val listNoteFiltered: SnapshotStateList<Note> = mutableStateListOf(),
 	val listTask: SnapshotStateList<Note> = mutableStateListOf(),
 	val listFilter: SnapshotStateList<Category> = mutableStateListOf(),
+	val listStyle: Boolean = true,
 	val currentFilter: String = DefaultCategory.ALL.category
 ): RootState.ViewUiState
 

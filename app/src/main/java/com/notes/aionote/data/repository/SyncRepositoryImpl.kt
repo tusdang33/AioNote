@@ -165,7 +165,9 @@ class SyncRepositoryImpl @Inject constructor(
 					transaction.delete(userNoteDocumentRef.document(noteId))
 				}
 			}.await()
+			noteRepository.deleteAllDeletedNoteId()
 		}
+		
 	}
 	
 	private suspend fun syncToDevice(userId: String, remoteData: List<FireNoteEntity>, localData: List<NoteEntity>) {
@@ -203,7 +205,7 @@ class SyncRepositoryImpl @Inject constructor(
 	
 	override suspend fun sync(userId: String): Resource<Unit> {
 		return try {
-			val userNoteRef = getUserNoteRef(userId) ?: throw Exception("Get user note ref fail")
+			val userNoteRef = getUserNoteRef(userId) ?: throw Exception("Get user note ref fail $userId")
 			val userNoteDocumentRef = fireStoreUserCollection.document(userNoteRef)
 				.collection(FirebaseConst.FIREBASE_NOTE_COL_REF)
 

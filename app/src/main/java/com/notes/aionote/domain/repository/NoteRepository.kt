@@ -19,5 +19,7 @@ interface NoteRepository {
 	)
 	
 	suspend fun deleteNote(noteId: String)
+	suspend fun deleteAllNote()
 	suspend fun getDeletedNoteId() : Resource<List<String>>
+	suspend fun deleteAllDeletedNoteId()
 }

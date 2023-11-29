@@ -1,7 +1,14 @@
 package com.notes.aionote.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.WorkManager
+import com.notes.aionote.common.AioConst
 import com.notes.aionote.common.AioDispatcher
 import com.notes.aionote.common.Dispatcher
 import com.notes.aionote.data.repository.AudioPlayerImpl
@@ -17,7 +24,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
 @Module
@@ -49,13 +58,28 @@ object AppModule {
 	
 	@Singleton
 	@Provides
-	fun provideAudioRecorder(@ApplicationContext context: Context) : AudioRecorder = AudioRecorderImpl(context)
+	fun provideAudioRecorder(@ApplicationContext context: Context): AudioRecorder =
+		AudioRecorderImpl(context)
 	
 	@Singleton
 	@Provides
-	fun provideAudioPlayer(@ApplicationContext context: Context) : AudioPlayer = AudioPlayerImpl(context)
+	fun provideAudioPlayer(@ApplicationContext context: Context): AudioPlayer =
+		AudioPlayerImpl(context)
 	
 	@Singleton
 	@Provides
-	fun provideWorkManager(@ApplicationContext context: Context) : WorkManager = WorkManager.getInstance(context)
+	fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
+		WorkManager.getInstance(context)
+	
+	@Singleton
+	@Provides
+	fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+		return PreferenceDataStoreFactory.create(
+			corruptionHandler = ReplaceFileCorruptionHandler(
+				produceNewData = { emptyPreferences() }
+			),
+			scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+			produceFile = { context.preferencesDataStoreFile(AioConst.PREFERENCE_DATA) }
+		)
+	}
 }

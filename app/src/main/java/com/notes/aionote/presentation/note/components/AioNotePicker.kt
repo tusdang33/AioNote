@@ -1,7 +1,6 @@
 package com.notes.aionote.presentation.note.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,11 +82,17 @@ fun AioNotePicker(
 					}
 				) {
 					notePicker.icon?.let { notePickerIcon ->
-						Image(
+						Icon(
 							painter = painterResource(
 								id = if (holding) notePicker.altIcon
 									?: notePickerIcon else notePickerIcon
-							), contentDescription = ""
+							), contentDescription = "", tint = if (holding) {
+								AioTheme.primaryColor.base
+							} else if (notePicker is NoteOption) {
+								AioTheme.neutralColor.black
+							} else {
+								AioTheme.neutralColor.base
+							}
 						)
 					}
 				}

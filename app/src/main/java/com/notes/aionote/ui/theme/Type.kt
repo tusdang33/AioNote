@@ -99,4 +99,6 @@ object AioThemeTypography {
 	val aioRegularTypography = providesTypography(FontWeight.Normal)
 	val aioMediumTypography = providesTypography(FontWeight.Medium)
 	val aioBoldTypography = providesTypography(FontWeight.Bold)
+	val aioBlackBoldTypography = providesTypography(FontWeight.Black)
+	val aioExtraBoldTypography = providesTypography(FontWeight.ExtraBold)
 }

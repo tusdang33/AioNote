@@ -45,12 +45,6 @@ fun AioAttachmentNote(
 		}
 	}
 	
-	val currentTextStyle by remember(readOnly) {
-		derivedStateOf {
-			if (readOnly) AioTheme.mediumTypography.xs else textStyle
-		}
-	}
-	
 	Row(
 		modifier = modifier
 			.clip(RoundedCornerShape(12.dp))
@@ -71,7 +65,7 @@ fun AioAttachmentNote(
 			text = attachment.name,
 			overflow = TextOverflow.Ellipsis,
 			maxLines = 1,
-			style = currentTextStyle
+			style = if (readOnly) AioTheme.mediumTypography.xs else textStyle
 		)
 
 //		Text(

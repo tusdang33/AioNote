@@ -1,7 +1,5 @@
 package com.notes.aionote.presentation.home
 
-import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,16 +28,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notes.aionote.collectInLaunchedEffectWithLifecycle
 import com.notes.aionote.common.DefaultCategory
+import com.notes.aionote.presentation.note.components.AioGridNotePreview
+import com.notes.aionote.presentation.note.components.AioHorizontalNotePreview
 import com.notes.aionote.presentation.note.components.AioNoteFilter
 import com.notes.aionote.presentation.note.components.AioNotePicker
-import com.notes.aionote.presentation.note.components.AioNotePreview
 import com.notes.aionote.presentation.note.components.AioTaskPreview
 import com.notes.aionote.presentation.note.components.NoteContentToolbarItem
 import com.notes.aionote.presentation.note.components.NoteSegment
@@ -104,7 +102,6 @@ fun HomeScreen(
 	homeUiState: HomeUiState,
 	filterLazyListState: LazyListState,
 	onEvent: (HomeEvent) -> Unit,
-	context: Context = LocalContext.current,
 	coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
 	val pageState = rememberPagerState()
@@ -174,34 +171,76 @@ fun HomeScreen(
 							onEvent(HomeEvent.NavigateToCategory)
 						}
 					)
-					LazyVerticalStaggeredGrid(
-						modifier = Modifier.fillMaxHeight(),
-						columns = StaggeredGridCells.Fixed(2),
-						contentPadding = PaddingValues(12.dp),
-						horizontalArrangement = Arrangement.spacedBy(12.dp),
-						verticalItemSpacing = 12.dp
-					) {
-						itemsIndexed(
-							if (homeUiState.currentFilter == DefaultCategory.ALL.category) {
-								homeUiState.listNote
-							} else {
-								homeUiState.listNoteFiltered
-							}
-						) { index, note ->
-							AioNotePreview(
-								note = note,
-								onNoteClick = { onEvent(HomeEvent.NavigateToEditNote(it)) },
-								onToolbarItemClick = { toolbar ->
-									when (toolbar) {
-										NoteToolbarItem.DELETE -> onEvent(HomeEvent.DeleteNote(index))
-										NoteToolbarItem.ADD_CATEGORY -> onEvent(
-											HomeEvent.AddNoteToCategory(
-												note.noteId
-											)
-										)
-									}
+					if (homeUiState.listStyle) {
+						LazyVerticalStaggeredGrid(
+							modifier = Modifier.fillMaxHeight(),
+							columns = StaggeredGridCells.Fixed(2),
+							contentPadding = PaddingValues(12.dp),
+							horizontalArrangement = Arrangement.spacedBy(12.dp),
+							verticalItemSpacing = 12.dp
+						) {
+							itemsIndexed(
+								if (homeUiState.currentFilter == DefaultCategory.ALL.category) {
+									homeUiState.listNote
+								} else {
+									homeUiState.listNoteFiltered
 								}
-							)
+							) { index, note ->
+								AioGridNotePreview(
+									note = note,
+									onNoteClick = { onEvent(HomeEvent.NavigateToEditNote(it)) },
+									onToolbarItemClick = { toolbar ->
+										when (toolbar) {
+											NoteToolbarItem.DELETE -> onEvent(
+												HomeEvent.DeleteNote(
+													index
+												)
+											)
+											
+											NoteToolbarItem.ADD_CATEGORY -> onEvent(
+												HomeEvent.AddNoteToCategory(
+													note.noteId
+												)
+											)
+										}
+									}
+								)
+							}
+						}
+					} else {
+						
+						LazyColumn(
+							modifier = Modifier.fillMaxHeight(),
+							contentPadding = PaddingValues(12.dp),
+							verticalArrangement = Arrangement.spacedBy(12.dp)
+						) {
+							itemsIndexed(
+								if (homeUiState.currentFilter == DefaultCategory.ALL.category) {
+									homeUiState.listNote
+								} else {
+									homeUiState.listNoteFiltered
+								}
+							) { index, note ->
+								AioHorizontalNotePreview(
+									note = note,
+									onNoteClick = { onEvent(HomeEvent.NavigateToEditNote(it)) },
+									onToolbarItemClick = { toolbar ->
+										when (toolbar) {
+											NoteToolbarItem.DELETE -> onEvent(
+												HomeEvent.DeleteNote(
+													index
+												)
+											)
+											
+											NoteToolbarItem.ADD_CATEGORY -> onEvent(
+												HomeEvent.AddNoteToCategory(
+													note.noteId
+												)
+											)
+										}
+									}
+								)
+							}
 						}
 					}
 				}

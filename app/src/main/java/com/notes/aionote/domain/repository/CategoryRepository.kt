@@ -9,4 +9,5 @@ interface CategoryRepository {
 	suspend fun addCategory(category: CategoryEntity) :Resource<Unit>
 	suspend fun updateCategory(category: CategoryEntity)
 	suspend fun deleteCategory(categoryId: String)
+	suspend fun deleteAllCategory()
 }

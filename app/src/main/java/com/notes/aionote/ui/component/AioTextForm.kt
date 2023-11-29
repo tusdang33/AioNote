@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
@@ -52,6 +54,7 @@ fun AioTextForm(
 	singleLine: Boolean = false,
 	minLines: Int = 1,
 	maxLines: Int = Int.MAX_VALUE,
+	focusRequester: FocusRequester = FocusRequester(),
 	visualTransformation: VisualTransformation = VisualTransformation.None,
 	interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 	backgroundColor: Color = AioTheme.neutralColor.white,
@@ -102,6 +105,7 @@ fun AioTextForm(
 			leadingIcon?.invoke()
 			OutlinedTextField(
 				modifier = Modifier
+					.focusRequester(focusRequester)
 					.fillMaxWidth(),
 				value = value,
 				shape = shape,
