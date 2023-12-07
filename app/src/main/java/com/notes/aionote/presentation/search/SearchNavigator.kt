@@ -12,13 +12,19 @@ fun NavController.navigateToSearch(navOptions: NavOptions? = null){
 }
 
 fun NavGraphBuilder.searchGraph(
-	onBackClick: () -> Unit
+	onBackClick: () -> Unit,
+	navigateToNote: (String) -> Unit,
+	navigateToTask: (String) -> Unit,
+	navigateToCategory: (String?) -> Unit,
 ){
 	composable(
 		route = searchRoute
 	){
 		SearchRoute(
-			onBackClick = onBackClick
+			onBackClick = onBackClick,
+			navigateToTask = navigateToTask,
+			navigateToCategory = navigateToCategory,
+			navigateToNote = navigateToNote
 		)
 	}
 }

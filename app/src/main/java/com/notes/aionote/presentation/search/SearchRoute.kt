@@ -24,9 +24,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notes.aionote.R
+import com.notes.aionote.collectInLaunchedEffectWithLifecycle
 import com.notes.aionote.presentation.note.components.AioGridNotePreview
 import com.notes.aionote.presentation.note.components.NoteToolbarItem
 import com.notes.aionote.ui.component.AioActionBar
@@ -46,6 +49,9 @@ import com.notes.aionote.ui.theme.AioTheme
 @Composable
 fun SearchRoute(
 	onBackClick: () -> Unit,
+	navigateToNote: (String) -> Unit,
+	navigateToTask: (String) -> Unit,
+	navigateToCategory: (String?) -> Unit,
 	searchViewModel: SearchViewModel = hiltViewModel()
 ) {
 	val searchUiState by searchViewModel.uiState.collectAsStateWithLifecycle()
@@ -56,10 +62,19 @@ fun SearchRoute(
 		onEvent = searchViewModel::onEvent,
 		onBackClick = onBackClick
 	)
-	
+	searchViewModel.oneTimeEvent.collectInLaunchedEffectWithLifecycle { searchOneTimeEvent ->
+		when (searchOneTimeEvent) {
+			is SearchOneTimeEvent.NavigateToCategory -> {
+				navigateToCategory.invoke(searchOneTimeEvent.noteId)
+			}
+			is SearchOneTimeEvent.NavigateToNote -> {
+				navigateToNote.invoke(searchOneTimeEvent.noteId)
+			}
+		}
+	}
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SearchScreen(
 	modifier: Modifier = Modifier,
@@ -70,7 +85,7 @@ fun SearchScreen(
 	val focusRequester by remember {
 		mutableStateOf(FocusRequester())
 	}
-	
+	val keyboardController = LocalSoftwareKeyboardController.current
 	Column(
 		modifier = modifier
 			.fillMaxSize()
@@ -119,7 +134,9 @@ fun SearchScreen(
 				keyboardActions = KeyboardActions(
 					onSearch = {
 						onEvent(SearchEvent.OnQuery)
+						keyboardController?.hide()
 					}
+				
 				),
 				text = searchUiState.searchInput,
 				onTextChange = {

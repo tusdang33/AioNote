@@ -15,7 +15,6 @@ abstract class RootViewModel<S: RootState.ViewUiState, O: RootState.OneTimeEvent
 	abstract val coroutineExceptionHandler: CoroutineExceptionHandler
 	abstract val uiState: StateFlow<S>
 	abstract fun onEvent(event: E)
-	abstract fun failHandle(errorMessage : String? = null)
 	abstract fun reduceUiStateFromOneTimeEvent(
 		uiState: S,
 		oneTimeEvent: O

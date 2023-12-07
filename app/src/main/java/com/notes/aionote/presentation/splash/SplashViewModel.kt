@@ -27,7 +27,7 @@ class SplashViewModel @Inject constructor(
 			sendEvent(SplashOneTimeEvent.LoginFail)
 		}
 	override val uiState: StateFlow<RootState.ViewUiState> = MutableStateFlow(RootState.ViewUiState.None)
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 		sendEvent(SplashOneTimeEvent.LoginFail)
 	}
 	

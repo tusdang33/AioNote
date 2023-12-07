@@ -62,6 +62,7 @@ import com.notes.aionote.presentation.note.components.ImagePickerToolbarItem
 import com.notes.aionote.presentation.note.components.NoteContentToolbarItem
 import com.notes.aionote.presentation.note.components.NoteOption
 import com.notes.aionote.presentation.note.components.VideoPickerToolbarItem
+import com.notes.aionote.presentation.note.task.TaskEvent
 import com.notes.aionote.ui.component.AioActionBar
 import com.notes.aionote.ui.theme.AioComposeTheme
 import com.notes.aionote.ui.theme.AioTheme
@@ -251,8 +252,14 @@ fun NoteScreen(
 							onDeleteCheckbox = {
 								onEvent(NoteEvent.DeleteItem(index))
 							},
+							onDone = {
+								onEvent(NoteEvent.AddCheckBox)
+							},
 							onFocus = {
 								onEvent(NoteEvent.FocusCheckNote(index))
+							},
+							onUnFocus = {
+								onEvent(NoteEvent.UnFocusCheckNote(index))
 							}
 						)
 					}

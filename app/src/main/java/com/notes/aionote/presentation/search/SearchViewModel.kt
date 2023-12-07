@@ -4,8 +4,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.viewModelScope
-import com.notes.aionote.common.AioRepoType
-import com.notes.aionote.common.RepoType
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.success
@@ -23,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-	private val localNoteRepository: NoteRepository,
+	private val noteRepository: NoteRepository,
 ): RootViewModel<SearchUiState, SearchOneTimeEvent, SearchEvent>() {
 	override val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
 	
@@ -32,7 +30,7 @@ class SearchViewModel @Inject constructor(
 	private val _searchUiState = MutableStateFlow(SearchUiState())
 	override val uiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()
 	
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 	
 	}
 	
@@ -72,7 +70,7 @@ class SearchViewModel @Inject constructor(
 	}
 	
 	private fun queryData() = viewModelScope.launch {
-		localNoteRepository.getNoteByKeyword(_searchUiState.value.searchInput).collect { result ->
+		noteRepository.getNoteByKeyword(_searchUiState.value.searchInput).collect { result ->
 			result.success { notes ->
 				_searchUiState.update { uiState ->
 					uiState.copy(
@@ -85,7 +83,7 @@ class SearchViewModel @Inject constructor(
 	}
 	
 	private fun removeNote(index: Int) = viewModelScope.launch {
-		localNoteRepository.deleteNote(_searchUiState.value.searchResult[index].noteId)
+		noteRepository.deleteNote(_searchUiState.value.searchResult[index].noteId)
 	}
 }
 

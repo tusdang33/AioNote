@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {
 	fun getAllNote(): Flow<Resource<List<NoteEntity>>>
+	fun getAllTask(): Flow<Resource<List<NoteEntity>>>
 	suspend fun getSnapShotOfAllNote(): Resource<List<NoteEntity>>
 	suspend fun getNoteById(noteId: String): Resource<NoteEntity?>
 	fun getNoteByKeyword(keyword: String): Flow<Resource<List<NoteEntity>>>

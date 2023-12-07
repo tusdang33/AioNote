@@ -24,8 +24,8 @@ import com.notes.aionote.presentation.home.navigateToHome
 import com.notes.aionote.presentation.note.navigation.navigateToNote
 import com.notes.aionote.presentation.note.navigation.navigateToTask
 import com.notes.aionote.presentation.note.navigation.noteRoute
-import com.notes.aionote.presentation.save.navigateToSave
-import com.notes.aionote.presentation.save.finishedRoute
+import com.notes.aionote.presentation.finished.navigateToFinished
+import com.notes.aionote.presentation.finished.finishedRoute
 import com.notes.aionote.presentation.search.navigateToSearch
 import com.notes.aionote.presentation.search.searchRoute
 import com.notes.aionote.presentation.setting.navigation.changePasswordRoute
@@ -118,7 +118,7 @@ class AioAppState @OptIn(ExperimentalMaterialNavigationApi::class) constructor(
 		
 		when (topLevelDestination) {
 			TopLevelDestination.HOME -> navController.navigateToHome()
-			TopLevelDestination.FINISHED -> navController.navigateToSave()
+			TopLevelDestination.FINISHED -> navController.navigateToFinished()
 			TopLevelDestination.SEARCH -> navController.navigateToSearch()
 			TopLevelDestination.SETTING -> navController.navigateToSetting()
 		}
