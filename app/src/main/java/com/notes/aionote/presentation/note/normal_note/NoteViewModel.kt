@@ -1,6 +1,7 @@
 package com.notes.aionote.presentation.note.normal_note
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.net.toUri
@@ -15,6 +16,7 @@ import com.notes.aionote.common.success
 import com.notes.aionote.data.model.CheckNote
 import com.notes.aionote.data.model.MediaNote
 import com.notes.aionote.data.model.MediaType
+import com.notes.aionote.data.model.Note
 import com.notes.aionote.data.model.NoteContent
 import com.notes.aionote.data.model.TextNote
 import com.notes.aionote.data.model.toNote
@@ -46,7 +48,7 @@ class NoteViewModel @Inject constructor(
 	private val audioRecorder: AudioRecorder
 ): RootViewModel<NoteUiState, NoteOneTimeEvent, NoteEvent>() {
 	private val currentNoteId: String = checkNotNull(savedStateHandle["noteId"])
-	
+	private lateinit var oldNote : NoteEntity
 	override val coroutineExceptionHandler: CoroutineExceptionHandler =
 		CoroutineExceptionHandler { _, throwable ->
 			failHandle(throwable.message)
@@ -61,6 +63,7 @@ class NoteViewModel @Inject constructor(
 				noteRepository.getNoteById(currentNoteId).success {
 					val note = it?.toNote(audioRecorder)
 					if (note != null) {
+						oldNote = it
 						_noteUiState.update { uiState ->
 							uiState.copy(
 								title = note.title,
@@ -79,7 +82,7 @@ class NoteViewModel @Inject constructor(
 		}
 	}
 	
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 		sendEvent(NoteOneTimeEvent.Fail(errorMessage))
 	}
 	
@@ -147,7 +150,7 @@ class NoteViewModel @Inject constructor(
 			}
 			
 			NoteEvent.AddCheckBox -> {
-				addNotes(listOf(CheckNote()), _noteUiState.value.focusedIndex)
+				addNotes(listOf(CheckNote()), _noteUiState.value.focusedIndex + 1)
 			}
 			
 			is NoteEvent.AddImage -> {
@@ -275,6 +278,15 @@ class NoteViewModel @Inject constructor(
 					}
 				}
 			}
+			
+			is NoteEvent.UnFocusCheckNote -> {
+				if (_noteUiState.value.focusedIndex != event.index) return
+				_noteUiState.update {
+					it.copy(
+						focusedIndex = -2
+					)
+				}
+			}
 		}
 	}
 	
@@ -293,12 +305,30 @@ class NoteViewModel @Inject constructor(
 			createTime = prepareNote.currentTime
 			noteType = NoteType.NORMAL.ordinal
 		}
+		if(!compareNote(oldNote, noteEntity)) return@launch
 		if (currentNoteId != "null") {
 			noteRepository.updateNote(noteEntity = noteEntity)
 		} else {
 			noteRepository.insertNote(noteEntity = noteEntity)
 		}
 		savedStateHandle["noteId"] = null
+	}
+	
+	private fun compareNote(oldNote: NoteEntity, newNote: NoteEntity) : Boolean {
+		if(oldNote.title != newNote.title) return true
+		if(oldNote.notes.size != newNote.notes.size) return true
+		oldNote.notes.forEachIndexed { index, noteContentEntity ->
+			val newCompareNote = newNote.notes[index]
+			if (
+				noteContentEntity.checked != newCompareNote.checked ||
+				noteContentEntity.content != newCompareNote.content ||
+				noteContentEntity.noteContentType != newCompareNote.noteContentType ||
+				noteContentEntity.mediaPath != newCompareNote.mediaPath
+			) {
+				return true
+			}
+		}
+		return false
 	}
 	
 	private fun addNotes(
@@ -348,7 +378,7 @@ data class NoteUiState(
 	val title: String? = null,
 	val currentTime: Long = System.currentTimeMillis(),
 	val isImageZoomed: Boolean = true,
-	val focusedIndex: Int = -1,
+	val focusedIndex: Int = -2,
 	val listNote: SnapshotStateList<NoteContent> = mutableStateListOf(TextNote())
 ): RootState.ViewUiState
 
@@ -409,6 +439,7 @@ sealed class NoteEvent: RootState.ViewEvent {
 	data class AddAttachment(val path: Uri): NoteEvent()
 	data class DeleteItem(val index: Int): NoteEvent()
 	data class FocusCheckNote(val index: Int): NoteEvent()
+	data class UnFocusCheckNote(val index: Int): NoteEvent()
 	data class ChangeImageZoom(val isZoom: Boolean): NoteEvent()
 	data class PlayOrStopVoice(
 		val index: Int,

@@ -81,11 +81,11 @@ fun TaskScreen(
 		)
 	}
 	
-	DisposableEffect(Unit) {
-		onDispose {
-			onEvent(TaskEvent.SaveNote)
-		}
-	}
+//	DisposableEffect(Unit) {
+//		onDispose {
+//			onEvent(TaskEvent.SaveNote)
+//		}
+//	}
 	
 	Column(
 		modifier = modifier
@@ -113,6 +113,9 @@ fun TaskScreen(
 					},
 					onDone = {
 						onEvent(TaskEvent.AddCheckNote(index))
+					},
+					onCheckedChange = {
+						onEvent(TaskEvent.OnCheckedChange(index, !note.checked))
 					}
 				)
 			}
@@ -153,6 +156,7 @@ fun TaskScreen(
 			}
 			AioIconButton(
 				onClick = {
+					onEvent(TaskEvent.SaveNote)
 					onBackClick.invoke()
 				},
 				enabled = taskUiState.deadline != null,

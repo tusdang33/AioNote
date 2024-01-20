@@ -57,7 +57,7 @@ class SignInViewModel @Inject constructor(
 		_signInUiState.value = uiState
 	}
 	
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 		sendEvent(SignInOneTimeEvent.Fail(errorMessage))
 	}
 	

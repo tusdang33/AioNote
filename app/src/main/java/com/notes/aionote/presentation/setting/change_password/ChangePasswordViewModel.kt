@@ -36,7 +36,7 @@ class ChangePasswordViewModel @Inject constructor(
 	private val _changePasswordUiState = MutableStateFlow(ChangePasswordUiState())
 	override val uiState: StateFlow<ChangePasswordUiState> = _changePasswordUiState.asStateFlow()
 	
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 	}
 	
 	override fun reduceUiStateFromOneTimeEvent(

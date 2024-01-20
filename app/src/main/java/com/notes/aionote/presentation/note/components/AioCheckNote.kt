@@ -45,6 +45,7 @@ fun AioCheckNote(
 	modifier: Modifier = Modifier,
 	checked: Boolean = false,
 	text: String = "",
+	isReadOnly: Boolean = false,
 	focusRequester: FocusRequester = FocusRequester(),
 	textStyle: TextStyle = AioTheme.regularTypography.base,
 	checkBoxSize: DpSize = DpSize(20.dp, 20.dp),
@@ -58,6 +59,7 @@ fun AioCheckNote(
 	onDone: () -> Unit = {},
 	onDeleteCheckbox: () -> Unit = {},
 	onFocus: () -> Unit = {},
+	onUnFocus: () -> Unit = {},
 ) {
 	
 	Row(
@@ -70,8 +72,8 @@ fun AioCheckNote(
 				.size(checkBoxSize)
 				.scale(scaleSize),
 			colors = CheckboxDefaults.colors(
-				checkedColor = AioTheme.primaryColor.base,
-				uncheckedColor = AioTheme.primaryColor.base,
+				checkedColor = if(!isReadOnly) AioTheme.primaryColor.base else AioTheme.neutralColor.base,
+				uncheckedColor = if(!isReadOnly) AioTheme.primaryColor.base else AioTheme.neutralColor.base,
 				checkmarkColor = AioTheme.neutralColor.white
 			),
 			checked = checked,
@@ -88,10 +90,11 @@ fun AioCheckNote(
 					.onFocusChanged {
 						if (it.isFocused) {
 							onFocus.invoke()
+						} else {
+							onUnFocus.invoke()
 						}
 					}
 					.onKeyEvent {
-						Log.e("tudm", "AioCheckNote ${it.key} ",)
 						if (it.key.keyCode == 287762808832 && text.isEmpty()) {
 							onDeleteCheckbox.invoke()
 							true

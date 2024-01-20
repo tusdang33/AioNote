@@ -48,6 +48,7 @@ import com.notes.aionote.yearWithoutSecTimePattern
 fun AioTaskPreview(
 	modifier: Modifier = Modifier,
 	note: Note,
+	isReadOnly: Boolean = false,
 	onNoteClick: (String) -> Unit,
 	onCheckedChange: (Int, Boolean) -> Unit = { _, _ -> },
 	onToolbarItemClick: (NoteContentToolbarItem) -> Unit,
@@ -105,6 +106,7 @@ fun AioTaskPreview(
 					AioCheckNote(
 						checked = allCheckedState,
 						isCheckboxOnly = true,
+						isReadOnly = isReadOnly,
 						textFieldEnable = false,
 					)
 					
@@ -165,6 +167,7 @@ fun AioTaskPreview(
 								checked = (noteContent as CheckNote).checked,
 								text = (noteContent as CheckNote).content,
 								textFieldEnable = false,
+								isReadOnly = isReadOnly,
 								onCheckedChange = {
 									onCheckedChange.invoke(index, it)
 								}

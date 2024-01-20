@@ -6,18 +6,14 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.notes.aionote.common.AioDispatcher
-import com.notes.aionote.common.AioRepoType
 import com.notes.aionote.common.DefaultCategory
 import com.notes.aionote.common.Dispatcher
-import com.notes.aionote.common.RepoType
-import com.notes.aionote.common.Resource
 import com.notes.aionote.common.RootState
 import com.notes.aionote.common.RootViewModel
 import com.notes.aionote.common.success
 import com.notes.aionote.data.model.Category
 import com.notes.aionote.data.model.toCategory
 import com.notes.aionote.domain.local_data.CategoryEntity
-import com.notes.aionote.domain.repository.AudioRecorder
 import com.notes.aionote.domain.repository.CategoryRepository
 import com.notes.aionote.domain.repository.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +23,6 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,8 +30,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CategoryViewModel @Inject constructor(
 	private val savedStateHandle: SavedStateHandle,
-	private val localNoteRepository: NoteRepository,
-	private val localCategoryRepository: CategoryRepository,
+	private val noteRepository: NoteRepository,
+	private val categoryRepository: CategoryRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 	@Dispatcher(AioDispatcher.Main) private val mainDispatcher: CoroutineDispatcher,
 ) : RootViewModel<CategoryUiState, CategoryOneTimeEvent, CategoryEvent>() {
@@ -53,7 +48,7 @@ class CategoryViewModel @Inject constructor(
 	}
 	
 	private fun fetchAllCategory() = viewModelScope.launch(ioDispatcher)   {
-		localCategoryRepository.getAllCategory().collect { resourceCategory ->
+		categoryRepository.getAllCategory().collect { resourceCategory ->
 			resourceCategory.success { listCategory ->
 				_categoryUiState.update { uiState ->
 					uiState.copy(
@@ -76,7 +71,7 @@ class CategoryViewModel @Inject constructor(
 		}
 	}
 	
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 		sendEvent(CategoryOneTimeEvent.Fail(errorMessage = errorMessage))
 	}
 	
@@ -134,7 +129,7 @@ class CategoryViewModel @Inject constructor(
 	
 	private fun handleCategoryClick(category: Category) = viewModelScope.launch (NonCancellable) {
 		if (!creatingCategoryNoteId.isNullOrBlank()) {
-			localNoteRepository.updateNoteCategory(
+			noteRepository.updateNoteCategory(
 				categoryId = category.categoryId,
 				noteId = creatingCategoryNoteId
 			)
@@ -143,7 +138,7 @@ class CategoryViewModel @Inject constructor(
 	}
 	
 	private fun deleteCategory(categoryId: String) = viewModelScope.launch {
-		localCategoryRepository.deleteCategory(categoryId)
+		categoryRepository.deleteCategory(categoryId)
 	}
 	
 	private fun createCategory() = viewModelScope.launch(NonCancellable + ioDispatcher) {
@@ -151,9 +146,9 @@ class CategoryViewModel @Inject constructor(
 		sendEvent(CategoryOneTimeEvent.Loading)
 		val prepareCategory = _categoryUiState.value
 		val addingCategory = CategoryEntity().apply { category = prepareCategory.newCategory }
-		localCategoryRepository.addCategory(addingCategory).success { sendEvent(CategoryOneTimeEvent.Success) }
+		categoryRepository.addCategory(addingCategory).success { sendEvent(CategoryOneTimeEvent.Success) }
 		if (!creatingCategoryNoteId.isNullOrBlank()) {
-			localNoteRepository.updateNoteCategory(
+			noteRepository.updateNoteCategory(
 				categoryId = addingCategory.categoryId.toHexString(),
 				noteId = creatingCategoryNoteId
 			)

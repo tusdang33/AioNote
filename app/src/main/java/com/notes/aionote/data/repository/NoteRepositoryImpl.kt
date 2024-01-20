@@ -28,6 +28,16 @@ class NoteRepositoryImpl @Inject constructor(
 		}
 	}
 	
+	override fun getAllTask(): Flow<Resource<List<NoteEntity>>> {
+		return try {
+			realm.query<NoteEntity>(
+				query = "noteType == 1"
+			).asFlow().map { Resource.Success(it.list) }
+		} catch (e: Exception) {
+			flow { emit(Resource.Fail(e.message)) }
+		}
+	}
+	
 	override suspend fun getSnapShotOfAllNote(): Resource<List<NoteEntity>> {
 		return try {
 			Resource.Success(realm.query<NoteEntity>().find())

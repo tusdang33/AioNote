@@ -3,7 +3,7 @@ package com.notes.aionote.common
 import androidx.annotation.DrawableRes
 import com.notes.aionote.R
 import com.notes.aionote.presentation.home.homeRoute
-import com.notes.aionote.presentation.save.finishedRoute
+import com.notes.aionote.presentation.finished.finishedRoute
 import com.notes.aionote.presentation.search.searchRoute
 import com.notes.aionote.presentation.setting.navigation.settingRoute
 

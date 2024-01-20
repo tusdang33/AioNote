@@ -208,7 +208,6 @@ fun HomeScreen(
 							}
 						}
 					} else {
-						
 						LazyColumn(
 							modifier = Modifier.fillMaxHeight(),
 							contentPadding = PaddingValues(12.dp),

@@ -99,7 +99,7 @@ class SettingViewModel @Inject constructor(
 		}
 	}
 	
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 	}
 	
 	override fun reduceUiStateFromOneTimeEvent(

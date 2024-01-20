@@ -24,6 +24,7 @@ import com.notes.aionote.data.model.toNoteContentEntity
 import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.NoteRepository
 import com.notes.aionote.presentation.note.NoteType
+import com.notes.aionote.presentation.note.normal_note.NoteEvent
 import com.notes.aionote.worker.ReminderWork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.realm.kotlin.ext.toRealmList
@@ -78,7 +79,7 @@ class TaskViewModel @Inject constructor(
 		}
 	}
 	
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 	}
 	
 	override fun reduceUiStateFromOneTimeEvent(
@@ -115,6 +116,17 @@ class TaskViewModel @Inject constructor(
 					_taskUiState.value.focusRequester.requestFocus()
 				} catch (e: Exception) {
 					/* ignore focus */
+				}
+			}
+			
+			is TaskEvent.OnCheckedChange -> {
+				val note = _taskUiState.value.listCheckNote.getOrNull(event.index) ?: return
+				_taskUiState.update {
+					it.copy(
+						listCheckNote = it.listCheckNote.apply {
+							set(event.index, note.copy(checked = event.checked))
+						}
+					)
 				}
 			}
 			
@@ -217,6 +229,10 @@ sealed class TaskEvent: RootState.ViewEvent {
 	): TaskEvent()
 	
 	data class AddCheckNote(val index: Int): TaskEvent()
+	data class OnCheckedChange(
+		val index: Int,
+		val checked: Boolean
+	): TaskEvent()
 	data class DeleteItem(val index: Int): TaskEvent()
 	object SaveNote: TaskEvent()
 	object DismissDialog: TaskEvent()

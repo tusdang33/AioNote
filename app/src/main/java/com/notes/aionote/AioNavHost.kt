@@ -12,13 +12,12 @@ import com.notes.aionote.presentation.authentication.sign_up.signUpGraph
 import com.notes.aionote.presentation.category.categoryGraph
 import com.notes.aionote.presentation.category.navigateToCategory
 import com.notes.aionote.presentation.home.homeGraph
-import com.notes.aionote.presentation.home.homeRoute
 import com.notes.aionote.presentation.home.navigateToHome
 import com.notes.aionote.presentation.note.navigation.navigateToNote
 import com.notes.aionote.presentation.note.navigation.navigateToTask
 import com.notes.aionote.presentation.note.navigation.noteGraph
 import com.notes.aionote.presentation.note.navigation.taskGraph
-import com.notes.aionote.presentation.save.saveGraph
+import com.notes.aionote.presentation.finished.finishedGraph
 import com.notes.aionote.presentation.search.searchGraph
 import com.notes.aionote.presentation.setting.navigation.changePasswordGraph
 import com.notes.aionote.presentation.setting.navigation.editProfileGraph
@@ -61,9 +60,23 @@ fun AioNavHost(
 		searchGraph(
 			onBackClick = {
 				navController.popBackStack()
+			},
+			navigateToNote = {
+				navController.navigateToNote(noteId = it)
+			},
+			navigateToTask = {
+				navController.navigateToTask(taskId = it)
+			},
+			navigateToCategory = {
+				navController.navigateToCategory(noteId = it ?: "")
 			}
 		)
-		saveGraph()
+		finishedGraph(
+			onBackClick = {navController.popBackStack()},
+			navigateToTask = {
+//				navController.navigateToTask(taskId = it)
+			}
+		)
 		settingGraph(
 			navigateToSignIn = { navController.navigateToSignIn() },
 			navigateToEditProfile = { image, name, email ->

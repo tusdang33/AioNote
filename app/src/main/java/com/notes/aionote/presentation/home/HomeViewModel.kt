@@ -6,7 +6,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.notes.aionote.common.AioConst
@@ -47,8 +46,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
 	private val savedStateHandle: SavedStateHandle,
-	private val localNoteRepository: NoteRepository,
-	private val localCategoryRepository: CategoryRepository,
+	private val noteRepository: NoteRepository,
+	private val categoryRepository: CategoryRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 	@Dispatcher(AioDispatcher.Main) private val mainDispatcher: CoroutineDispatcher,
 	private val audioRecorder: AudioRecorder,
@@ -88,7 +87,7 @@ class HomeViewModel @Inject constructor(
 	}
 	
 	private fun fetchCategoryData(onFetchSuccess: () -> Unit) = viewModelScope.launch {
-		localCategoryRepository.getAllCategory().collect { resourceCategory ->
+		categoryRepository.getAllCategory().collect { resourceCategory ->
 			resourceCategory.success { listCategory ->
 				_homeUiState.update { uiState ->
 					uiState.copy(
@@ -111,7 +110,7 @@ class HomeViewModel @Inject constructor(
 	}
 	
 	private fun fetchNoteData(onFetchSuccess: () -> Unit) = viewModelScope.launch(ioDispatcher) {
-		localNoteRepository.getAllNote().collect { note ->
+		noteRepository.getAllNote().collect { note ->
 			note.success { listNoteEntity ->
 				withContext(mainDispatcher) {
 					_homeUiState.update { uiState ->
@@ -132,7 +131,7 @@ class HomeViewModel @Inject constructor(
 		}
 	}
 	
-	override fun failHandle(errorMessage: String?) {
+	private fun failHandle(errorMessage: String? = null) {
 		sendEvent(HomeOneTimeEvent.Fail())
 	}
 	
@@ -205,7 +204,7 @@ class HomeViewModel @Inject constructor(
 				deadLine = prepareTask.deadLine
 				noteType = NoteType.TASK.ordinal
 			}
-			localNoteRepository.updateNote(noteEntity = noteEntity)
+			noteRepository.updateNote(noteEntity = noteEntity)
 		}
 	}
 	
@@ -253,11 +252,11 @@ class HomeViewModel @Inject constructor(
 	}
 	
 	private fun removeNote(index: Int) = viewModelScope.launch {
-		localNoteRepository.deleteNote(_homeUiState.value.listNote[index].noteId)
+		noteRepository.deleteNote(_homeUiState.value.listNote[index].noteId)
 	}
 	
 	private fun removeTask(index: Int) = viewModelScope.launch {
-		localNoteRepository.deleteNote(_homeUiState.value.listTask[index].noteId)
+		noteRepository.deleteNote(_homeUiState.value.listTask[index].noteId)
 	}
 }
 
