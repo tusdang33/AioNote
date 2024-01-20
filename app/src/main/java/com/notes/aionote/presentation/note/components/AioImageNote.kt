@@ -31,7 +31,7 @@ fun AioImageNote(
 	modifier: Modifier = Modifier,
 	image: String,
 	zoomed: Boolean = true,
-	onToolbarItemClick: (ImageNoteContentToolbarItem) -> Unit,
+	onToolbarItemClick: (ImageNoteContentToolbarItem) -> Unit = {},
 ) {
 	var showToolbar by remember {
 		mutableStateOf(false)

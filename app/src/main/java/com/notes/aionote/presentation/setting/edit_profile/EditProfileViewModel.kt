@@ -28,9 +28,7 @@ class EditProfileViewModel @Inject constructor(
 	private val image: String? = savedStateHandle["image"]
 	private val name: String? = savedStateHandle["userName"]
 	private val email: String? = savedStateHandle["userEmail"]
-	override val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-	
-	}
+
 	private val _editProfileUiState = MutableStateFlow(EditProfileUiState())
 	override val uiState: StateFlow<EditProfileUiState> = _editProfileUiState.asStateFlow()
 	
@@ -42,9 +40,6 @@ class EditProfileViewModel @Inject constructor(
 				email = email ?: ""
 			)
 		}
-	}
-	
-	private fun failHandle(errorMessage: String? = null) {
 	}
 	
 	override fun reduceUiStateFromOneTimeEvent(

@@ -2,7 +2,6 @@ package com.notes.aionote.data.model
 
 import com.notes.aionote.domain.local_data.CategoryEntity
 import com.notes.aionote.domain.remote_data.FireCategoryEntity
-import org.mongodb.kbson.BsonObjectId
 import org.mongodb.kbson.ObjectId
 
 data class Category(

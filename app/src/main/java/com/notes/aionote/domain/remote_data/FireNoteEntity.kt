@@ -1,9 +1,5 @@
 package com.notes.aionote.domain.remote_data
 
-import com.notes.aionote.data.model.Category
-import com.notes.aionote.data.model.NoteContent
-import com.notes.aionote.presentation.note.NoteType
-
 data class FireNoteEntity(
 	val noteId: String = "",
 	val notes: List<FireNoteContent> = listOf(),
@@ -12,5 +8,6 @@ data class FireNoteEntity(
 	val noteType: Int = 0,
 	val category: FireCategoryEntity? = null,
 	val deadLine: Long? = null,
-	val version: Long = 1
+	val version: Long = 1,
+	val lastModifierTime: Long = 0
 )

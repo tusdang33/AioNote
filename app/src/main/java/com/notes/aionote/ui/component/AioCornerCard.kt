@@ -21,7 +21,7 @@ fun AioCornerCard(
 	shape: RoundedCornerShape = RoundedCornerShape(8.dp),
 	contentPadding: PaddingValues = PaddingValues(0.dp),
 	elevationItem: Dp = 3.dp,
-	content: @Composable () -> Unit
+	content: @Composable BoxScope.() -> Unit
 ) {
 	Box(
 		modifier = Modifier

@@ -104,7 +104,7 @@ fun AioHorizontalNotePreview(
 					verticalArrangement = Arrangement.spacedBy(5.dp)
 				) {
 					Text(
-						text = note.title ?: "",
+						text = note.title ?: stringResource(id = R.string.untitled),
 						style = AioTheme.mediumTypography.lg.copy(color = titleTextColor)
 					)
 					

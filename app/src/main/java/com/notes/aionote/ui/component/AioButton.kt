@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ButtonDefaults
@@ -76,7 +74,7 @@ fun AioButton(
 			.requiredHeightIn(minHeight)
 			.then(modifier)
 			.clip(shape)
-			.border(1.dp, borderColor,shape)
+			.border(1.dp, if (enabled) borderColor else disableColor, shape)
 			.background(backgroundColor)
 			.clickable(
 				interactionSource = interactionSource,

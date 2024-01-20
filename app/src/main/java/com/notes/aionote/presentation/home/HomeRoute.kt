@@ -5,9 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -61,7 +63,7 @@ fun HomeRoute(
 	HomeScreen(
 		modifier = Modifier
 			.fillMaxSize()
-			.background(AioTheme.neutralColor.light),
+			.background(AioTheme.primaryColor.background),
 		homeUiState = homeUiState,
 		filterLazyListState = filterLazyListState,
 		onEvent = homeViewModel::onEvent
@@ -125,14 +127,14 @@ fun HomeScreen(
 			modifier = Modifier.padding(vertical = 5.dp),
 			pickers = NoteSegment.values().toList(),
 			holdingNotePicker = holdingNotePicker,
-			backgroundColor = AioTheme.neutralColor.light,
+			backgroundColor = AioTheme.primaryColor.background,
 			arrangement = Arrangement.Center,
 			dividerColor = Color.Transparent,
 			onPickerClick = { picker ->
 				when (picker) {
 					NoteSegment.LIST -> {
 						holdingNotePicker = picker as? NoteSegment
-						if(pageState.currentPage != 0) {
+						if (pageState.currentPage != 0) {
 							coroutineScope.launch {
 								pageState.animateScrollToPage(0)
 							}
@@ -171,6 +173,9 @@ fun HomeScreen(
 							onEvent(HomeEvent.NavigateToCategory)
 						}
 					)
+					if (homeUiState.listNote.isEmpty()) {
+						EmptyListScreen()
+					}
 					if (homeUiState.listStyle) {
 						LazyVerticalStaggeredGrid(
 							modifier = Modifier.fillMaxHeight(),
@@ -244,19 +249,30 @@ fun HomeScreen(
 					}
 				}
 			} else {
+				
 				LazyColumn(
 					modifier = modifier,
 					contentPadding = PaddingValues(12.dp),
 					verticalArrangement = Arrangement.spacedBy(12.dp),
 					horizontalAlignment = Alignment.CenterHorizontally
 				) {
+					if (homeUiState.listTask.isEmpty()) {
+						item { 
+							Spacer(modifier = Modifier.height(30.dp))
+						}
+						item {
+							EmptyListScreen()
+						}
+					}
 					itemsIndexed(homeUiState.listTask) { index, note ->
 						AioTaskPreview(
 							note = note,
 							onNoteClick = { onEvent(HomeEvent.NavigateToEditTask(it)) },
 							onToolbarItemClick = { toolbar ->
 								when (toolbar) {
-									NoteContentToolbarItem.DELETE -> onEvent(HomeEvent.DeleteTask(index))
+									NoteContentToolbarItem.DELETE -> onEvent(
+										HomeEvent.DeleteTask(index)
+									)
 								}
 							},
 							onCheckedChange = { checkNoteIndex, checked ->

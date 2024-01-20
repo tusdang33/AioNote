@@ -90,10 +90,10 @@ fun AioCategoryCell(
 				text = category,
 				style = if (isHolding) AioTheme.boldTypography.base else AioTheme.regularTypography.base
 			)
-			Text(
-				text = quantity.toString(),
-				style = AioTheme.regularTypography.sm.copy(color = AioTheme.neutralColor.dark)
-			)
+//			Text(
+//				text = quantity.toString(),
+//				style = AioTheme.regularTypography.sm.copy(color = AioTheme.neutralColor.dark)
+//			)
 		}
 		
 		AioNoteToolbar(

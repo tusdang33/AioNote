@@ -29,15 +29,8 @@ class ChangePasswordViewModel @Inject constructor(
 ): RootViewModel<ChangePasswordUiState, ChangePasswordOneTimeEvent, ChangePasswordEvent>() {
 	private val userEmail: String? = savedStateHandle["email"]
 	
-	override val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-	
-	}
-	
 	private val _changePasswordUiState = MutableStateFlow(ChangePasswordUiState())
 	override val uiState: StateFlow<ChangePasswordUiState> = _changePasswordUiState.asStateFlow()
-	
-	private fun failHandle(errorMessage: String? = null) {
-	}
 	
 	override fun reduceUiStateFromOneTimeEvent(
 		uiState: ChangePasswordUiState,
@@ -112,7 +105,6 @@ class ChangePasswordViewModel @Inject constructor(
 					retypePassErrorMessage = retypePasswordValidateResult.errorMessage
 				)
 			}
-			failHandle()
 			return@launch
 		}
 		authRepository.login(userEmail ?: "", state.currentPass).fail {

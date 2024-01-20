@@ -17,6 +17,7 @@ import com.notes.aionote.domain.use_case.authentication.ValidateRetypePasswordUs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +34,7 @@ class SignUpViewModel @Inject constructor(
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
 ): RootViewModel<SignUpUiState, SignUpOneTimeEvent, SignUpEvent>() {
 	
-	override val coroutineExceptionHandler: CoroutineExceptionHandler
+	private val coroutineExceptionHandler: CoroutineExceptionHandler
 		get() = CoroutineExceptionHandler { _, throwable ->
 			sendEvent(SignUpOneTimeEvent.Fail(throwable.message))
 		}
@@ -119,6 +120,7 @@ class SignUpViewModel @Inject constructor(
 	
 	private fun signUp() = viewModelScope.launch(ioDispatcher + coroutineExceptionHandler) {
 		sendEvent(SignUpOneTimeEvent.Loading)
+		delay(300L)
 		val emailValidateResult = validateEmailUseCase(_signUpUiState.value.email)
 		val passwordValidateResult = validatePasswordUseCase(_signUpUiState.value.password)
 		val retypePasswordValidateResult = validateRetypePasswordUseCase(

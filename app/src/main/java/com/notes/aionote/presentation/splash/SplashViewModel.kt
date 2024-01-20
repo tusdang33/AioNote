@@ -22,7 +22,7 @@ class SplashViewModel @Inject constructor(
 	private val authRepository: AuthRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
 ): RootViewModel<RootState.ViewUiState, SplashOneTimeEvent, SplashEvent>() {
-	override val coroutineExceptionHandler: CoroutineExceptionHandler
+	private val coroutineExceptionHandler: CoroutineExceptionHandler
 		get() = CoroutineExceptionHandler { _, _ ->
 			sendEvent(SplashOneTimeEvent.LoginFail)
 		}

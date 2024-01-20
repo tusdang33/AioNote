@@ -1,8 +1,6 @@
 package com.notes.aionote.data.repository
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.notes.aionote.common.Resource
 import com.notes.aionote.domain.local_data.CategoryEntity
 import com.notes.aionote.domain.local_data.DeletedNoteEntity
@@ -10,7 +8,6 @@ import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.NoteRepository
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.types.annotations.Index
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -103,8 +100,9 @@ class NoteRepositoryImpl @Inject constructor(
 					it.createTime = noteEntity.createTime
 					it.noteType = noteEntity.noteType
 					it.category = noteEntity.category
-					it.deadLine = noteEntity.deadLine
-					it.version = it.version + if(updateVersion) 1L else 0L
+					it.deadline = noteEntity.deadline
+					it.version = if (updateVersion) it.version + 1L else noteEntity.version
+					it.lastModifierTime = if (updateVersion) System.currentTimeMillis() else noteEntity.lastModifierTime
 				}
 			}
 			Resource.Success(Unit)

@@ -7,10 +7,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.notes.aionote.common.AioConst.NOTIFICATION_ID
+import com.notes.aionote.common.AioConst.NOTIFICATION_MESSAGE
 import com.notes.aionote.common.AioConst.NOTIFICATION_TITLE
 import com.notes.aionote.common.AioConst.NOTIFICATION_WORK
 import com.notes.aionote.common.AioDispatcher
@@ -24,12 +24,10 @@ import com.notes.aionote.data.model.toNoteContentEntity
 import com.notes.aionote.domain.local_data.NoteEntity
 import com.notes.aionote.domain.repository.NoteRepository
 import com.notes.aionote.presentation.note.NoteType
-import com.notes.aionote.presentation.note.normal_note.NoteEvent
 import com.notes.aionote.worker.ReminderWork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,10 +48,7 @@ class TaskViewModel @Inject constructor(
 	@Dispatcher(AioDispatcher.Main) private val mainDispatcher: CoroutineDispatcher,
 ): RootViewModel<TaskUiState, TaskOneTimeEvent, TaskEvent>() {
 	private val currentTaskId: String = checkNotNull(savedStateHandle["taskId"])
-	
-	override val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
-	
-	}
+
 	private val _taskUiState = MutableStateFlow(TaskUiState())
 	
 	override val uiState: StateFlow<TaskUiState> = _taskUiState.asStateFlow()
@@ -79,8 +74,6 @@ class TaskViewModel @Inject constructor(
 		}
 	}
 	
-	private fun failHandle(errorMessage: String? = null) {
-	}
 	
 	override fun reduceUiStateFromOneTimeEvent(
 		uiState: TaskUiState,
@@ -171,13 +164,18 @@ class TaskViewModel @Inject constructor(
 		}
 	}
 	
-	private fun setReminder(delay: Long = 3000L, title: String = "This is title") {
+	private fun setReminder(
+		delay: Long = 3000L,
+		title: String = "Checklist Remind",
+		message: String
+	) {
 		val notificationWork = OneTimeWorkRequestBuilder<ReminderWork>()
 			.setInitialDelay(delay, TimeUnit.MILLISECONDS)
 			.setInputData(
 				Data.Builder()
 					.putInt(NOTIFICATION_ID, 0)
 					.putString(NOTIFICATION_TITLE, title)
+					.putString(NOTIFICATION_MESSAGE, message)
 					.build()
 			)
 			.build()
@@ -197,8 +195,11 @@ class TaskViewModel @Inject constructor(
 				noteId = ObjectId.invoke(hexString = currentTaskId)
 			}
 			notes = prepareNote.listCheckNote.map { it.toNoteContentEntity() }.toRealmList()
-			deadLine = prepareNote.deadline
+			deadline = if (prepareNote.deadline!! <= System.currentTimeMillis()) prepareNote.deadline.plus(
+				300000L
+			) else prepareNote.deadline
 			noteType = NoteType.TASK.ordinal
+			lastModifierTime = System.currentTimeMillis()
 		}
 		if (currentTaskId != "null") {
 			noteRepository.updateNote(noteEntity = noteEntity)
@@ -206,7 +207,10 @@ class TaskViewModel @Inject constructor(
 			noteRepository.insertNote(noteEntity = noteEntity)
 		}
 		savedStateHandle["taskId"] = null
-		setReminder()
+		setReminder(
+			prepareNote.deadline?.minus(System.currentTimeMillis()) ?: 0L,
+			message = prepareNote.listCheckNote.take(3).joinToString(", ") { it.content }
+		)
 	}
 }
 

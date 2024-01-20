@@ -20,6 +20,7 @@ class NoteEntity : RealmObject {
 	 */
 	var noteType: Int = 0
 	var category: CategoryEntity? = null
-	var deadLine: Long? = null
+	var deadline: Long? = null
 	var version : Long = 1
+	var lastModifierTime: Long = 0
 }

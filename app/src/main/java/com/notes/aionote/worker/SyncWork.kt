@@ -20,7 +20,10 @@ import com.notes.aionote.common.AioConst
 import com.notes.aionote.common.FirebaseConst
 import com.notes.aionote.common.fail
 import com.notes.aionote.common.success
+import com.notes.aionote.domain.local_data.NoteEntity
+import com.notes.aionote.domain.remote_data.FireNoteEntity
 import com.notes.aionote.domain.repository.SyncRepository
+import com.notes.aionote.presentation.note.conflicted_note.ResolveConflict
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -28,12 +31,15 @@ import dagger.assisted.AssistedInject
 class SyncWork @AssistedInject constructor(
 	@Assisted context: Context,
 	@Assisted params: WorkerParameters,
-	private val syncRepository: SyncRepository
+	private val syncRepository: SyncRepository,
+	private val resolveConflict: ResolveConflict
 ): CoroutineWorker(context, params) {
 	override suspend fun doWork(): Result {
 		val userId = inputData.getString(FirebaseConst.FIREBASE_SYNC_USER_ID) ?: ""
 		sendNotification(AioConst.NOTIFICATION_SYNC_ID, "Syncing")
-		syncRepository.sync(userId).success {
+		syncRepository.sync(userId){
+			resolveConflict.callback(it, userId)
+		}.success {
 			sendNotification(AioConst.NOTIFICATION_SYNC_ID, "Sync Success")
 			return Result.success()
 		}.fail {
