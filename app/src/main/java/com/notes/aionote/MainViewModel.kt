@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import com.notes.aionote.common.AioConst
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-	private val dataStore: DataStore<Preferences>
+	private val dataStore: DataStore<Preferences>,
+	private val instanceWorkManager: WorkManager,
 ): ViewModel() {
 	private val _mainUiState = MutableStateFlow(MainUiState())
 	val mainUiState = _mainUiState.asStateFlow()
@@ -32,6 +34,10 @@ class MainViewModel @Inject constructor(
 				}
 			}
 		}
+	}
+	
+	fun dispose() {
+		instanceWorkManager.cancelUniqueWork(AioConst.SYNC_WORK)
 	}
 }
 

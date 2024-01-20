@@ -1,7 +1,6 @@
 package com.notes.aionote.presentation.note.normal_note
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.net.toUri
@@ -16,7 +15,6 @@ import com.notes.aionote.common.success
 import com.notes.aionote.data.model.CheckNote
 import com.notes.aionote.data.model.MediaNote
 import com.notes.aionote.data.model.MediaType
-import com.notes.aionote.data.model.Note
 import com.notes.aionote.data.model.NoteContent
 import com.notes.aionote.data.model.TextNote
 import com.notes.aionote.data.model.toNote
@@ -48,8 +46,8 @@ class NoteViewModel @Inject constructor(
 	private val audioRecorder: AudioRecorder
 ): RootViewModel<NoteUiState, NoteOneTimeEvent, NoteEvent>() {
 	private val currentNoteId: String = checkNotNull(savedStateHandle["noteId"])
-	private lateinit var oldNote : NoteEntity
-	override val coroutineExceptionHandler: CoroutineExceptionHandler =
+	private var oldNote: NoteEntity? = null
+	private val coroutineExceptionHandler: CoroutineExceptionHandler =
 		CoroutineExceptionHandler { _, throwable ->
 			failHandle(throwable.message)
 		}
@@ -304,8 +302,9 @@ class NoteViewModel @Inject constructor(
 			title = prepareNote.title
 			createTime = prepareNote.currentTime
 			noteType = NoteType.NORMAL.ordinal
+			lastModifierTime = System.currentTimeMillis()
 		}
-		if(!compareNote(oldNote, noteEntity)) return@launch
+		if (!compareNote(oldNote, noteEntity)) return@launch
 		if (currentNoteId != "null") {
 			noteRepository.updateNote(noteEntity = noteEntity)
 		} else {
@@ -314,9 +313,13 @@ class NoteViewModel @Inject constructor(
 		savedStateHandle["noteId"] = null
 	}
 	
-	private fun compareNote(oldNote: NoteEntity, newNote: NoteEntity) : Boolean {
-		if(oldNote.title != newNote.title) return true
-		if(oldNote.notes.size != newNote.notes.size) return true
+	private fun compareNote(
+		oldNote: NoteEntity?,
+		newNote: NoteEntity
+	): Boolean {
+		if (oldNote == null) return true
+		if (oldNote.title != newNote.title) return true
+		if (oldNote.notes.size != newNote.notes.size) return true
 		oldNote.notes.forEachIndexed { index, noteContentEntity ->
 			val newCompareNote = newNote.notes[index]
 			if (

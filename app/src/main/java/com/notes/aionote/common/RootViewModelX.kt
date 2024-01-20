@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 
 abstract class RootViewModel<S: RootState.ViewUiState, O: RootState.OneTimeEvent<S>, E: RootState.ViewEvent>:
 	ViewModel() {
-	abstract val coroutineExceptionHandler: CoroutineExceptionHandler
 	abstract val uiState: StateFlow<S>
 	abstract fun onEvent(event: E)
 	abstract fun reduceUiStateFromOneTimeEvent(

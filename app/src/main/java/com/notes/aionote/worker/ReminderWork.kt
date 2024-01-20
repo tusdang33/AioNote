@@ -23,6 +23,7 @@ import com.notes.aionote.MainActivity
 import com.notes.aionote.R
 import com.notes.aionote.common.AioConst.NOTIFICATION_CHANNEL
 import com.notes.aionote.common.AioConst.NOTIFICATION_ID
+import com.notes.aionote.common.AioConst.NOTIFICATION_MESSAGE
 import com.notes.aionote.common.AioConst.NOTIFICATION_TITLE
 
 class ReminderWork(
@@ -31,8 +32,9 @@ class ReminderWork(
 ): CoroutineWorker(context, params) {
 	override suspend fun doWork(): Result {
 		val id = inputData.getLong(NOTIFICATION_ID, 0).toInt()
-		val title = inputData.getString(NOTIFICATION_TITLE) ?: "This is title"
-		sendNotification(id, title)
+		val title = inputData.getString(NOTIFICATION_TITLE) ?: "Checklist Remind"
+		val message = inputData.getString(NOTIFICATION_MESSAGE) ?: ""
+		sendNotification(id, title, message)
 		return success()
 	}
 	

@@ -10,12 +10,11 @@ import androidx.compose.ui.input.key.onKeyEvent
 import com.notes.aionote.ui.component.AioTextField
 import com.notes.aionote.ui.theme.AioTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AioTextNote(
 	modifier: Modifier = Modifier,
 	text: String,
-	focusRequester: FocusRequester,
+	focusRequester: FocusRequester  = FocusRequester(),
 	onTextChange: (String) -> Unit,
 	onDeleteCheckbox: () -> Unit,
 ) {

@@ -30,6 +30,7 @@ fun AioTextField(
 	textFieldColors: Color = AioTheme.neutralColor.white,
 	onTextChange: (String) -> Unit,
 	singleLine : Boolean = false,
+	enabled: Boolean = true,
 	contentPadding: PaddingValues = PaddingValues(0.dp),
 	keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 	keyboardActions: KeyboardActions = KeyboardActions.Default,
@@ -45,11 +46,12 @@ fun AioTextField(
 		onValueChange = onTextChange,
 		keyboardOptions = keyboardOptions,
 		keyboardActions = keyboardActions,
+		enabled = enabled,
 		decorationBox = { innerTextField ->
 			TextFieldDefaults.DecorationBox(
 				value = text,
 				innerTextField = innerTextField,
-				enabled = true,
+				enabled = enabled,
 				placeholder = placeholder,
 				singleLine = singleLine,
 				visualTransformation = VisualTransformation.None,
@@ -60,7 +62,11 @@ fun AioTextField(
 					focusedContainerColor = textFieldColors,
 					unfocusedContainerColor = textFieldColors,
 					focusedIndicatorColor = textFieldColors,
-					unfocusedIndicatorColor = textFieldColors
+					unfocusedIndicatorColor = textFieldColors,
+					disabledSupportingTextColor = textFieldColors,
+					disabledContainerColor = textFieldColors,
+					disabledIndicatorColor = textFieldColors,
+					disabledLabelColor = textFieldColors,
 				),
 				contentPadding = contentPadding,
 			)

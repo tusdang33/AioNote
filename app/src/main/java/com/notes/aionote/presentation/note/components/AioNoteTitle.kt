@@ -22,7 +22,8 @@ fun AioNoteTitle(
 	modifier: Modifier = Modifier,
 	text: String,
 	currentTime: Long,
-	onTextChange: (String) -> Unit
+	isReadOnly: Boolean = false,
+	onTextChange: (String) -> Unit = {}
 ) {
 	Column(
 		modifier = modifier
@@ -34,6 +35,7 @@ fun AioNoteTitle(
 			modifier = Modifier
 				.fillMaxWidth(),
 			text = text,
+			enabled = !isReadOnly,
 			textStyle = AioTheme.mediumTypography.xl,
 			onTextChange = onTextChange,
 			placeholder = {

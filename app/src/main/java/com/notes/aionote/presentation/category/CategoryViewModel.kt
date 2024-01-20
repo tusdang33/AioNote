@@ -18,7 +18,6 @@ import com.notes.aionote.domain.repository.CategoryRepository
 import com.notes.aionote.domain.repository.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,9 +36,6 @@ class CategoryViewModel @Inject constructor(
 ) : RootViewModel<CategoryUiState, CategoryOneTimeEvent, CategoryEvent>() {
 	private val creatingCategoryNoteId: String? = savedStateHandle["noteId"]
 	
-	override val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-	
-	}
 	private val _categoryUiState = MutableStateFlow(CategoryUiState())
 	override val uiState: StateFlow<CategoryUiState> = _categoryUiState.asStateFlow()
 	

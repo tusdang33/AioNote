@@ -35,7 +35,7 @@ import com.notes.aionote.presentation.note.components.NoteToolbarItem
 fun AioVideoNote(
 	modifier: Modifier = Modifier,
 	videoUrl: String,
-	onToolbarItemClick: (NoteContentToolbarItem) -> Unit,
+	onToolbarItemClick: (NoteContentToolbarItem) -> Unit = {},
 ) {
 	val context = LocalContext.current
 	

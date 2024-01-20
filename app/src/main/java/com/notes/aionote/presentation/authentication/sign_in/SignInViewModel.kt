@@ -42,7 +42,7 @@ class SignInViewModel @Inject constructor(
 	private val categoryRepository: CategoryRepository,
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
 ): RootViewModel<SignInUiState, SignInOneTimeEvent, SignInEvent>() {
-	override val coroutineExceptionHandler: CoroutineExceptionHandler
+	private val coroutineExceptionHandler: CoroutineExceptionHandler
 		get() = CoroutineExceptionHandler { _, exception ->
 			failHandle(exception.message)
 		}
@@ -131,18 +131,18 @@ class SignInViewModel @Inject constructor(
 	}
 	
 	private fun syncData(userId: String) {
-		val syncWork = OneTimeWorkRequestBuilder<SyncWork>()
-			.setInputData(
-				Data.Builder()
-					.putString(FirebaseConst.FIREBASE_SYNC_USER_ID, userId)
-					.build()
-			)
-			.build()
-		instanceWorkManager.beginUniqueWork(
-			AioConst.SYNC_WORK,
-			ExistingWorkPolicy.REPLACE,
-			syncWork
-		).enqueue()
+//		val syncWork = OneTimeWorkRequestBuilder<SyncWork>()
+//			.setInputData(
+//				Data.Builder()
+//					.putString(FirebaseConst.FIREBASE_SYNC_USER_ID, userId)
+//					.build()
+//			)
+//			.build()
+//		instanceWorkManager.beginUniqueWork(
+//			AioConst.SYNC_WORK,
+//			ExistingWorkPolicy.REPLACE,
+//			syncWork
+//		).enqueue()
 	}
 	
 	private fun getGoogleIntent() = viewModelScope.launch(ioDispatcher) {

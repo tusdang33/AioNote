@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notes.aionote.R
 import com.notes.aionote.collectInLaunchedEffectWithLifecycle
+import com.notes.aionote.presentation.note.NoteType
 import com.notes.aionote.presentation.note.components.AioGridNotePreview
 import com.notes.aionote.presentation.note.components.NoteToolbarItem
 import com.notes.aionote.ui.component.AioActionBar
@@ -70,6 +70,10 @@ fun SearchRoute(
 			is SearchOneTimeEvent.NavigateToNote -> {
 				navigateToNote.invoke(searchOneTimeEvent.noteId)
 			}
+			
+			is SearchOneTimeEvent.NavigateToTask -> {
+				navigateToTask.invoke(searchOneTimeEvent.noteId)
+			}
 		}
 	}
 }
@@ -91,7 +95,8 @@ fun SearchScreen(
 			.fillMaxSize()
 			.background(AioTheme.neutralColor.white)
 			.padding(12.dp),
-		verticalArrangement = Arrangement.spacedBy(16.dp)
+		verticalArrangement = Arrangement.spacedBy(16.dp),
+		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		AioActionBar(
 			leadingIcon = {
@@ -145,8 +150,14 @@ fun SearchScreen(
 			)
 		}
 		
+		if (searchUiState.errorMessage != null)
+			Text(
+				text = stringResource(id = R.string.no_result),
+				style = AioTheme.mediumTypography.base.copy(color = AioTheme.neutralColor.base)
+			)
+		
 		LazyVerticalStaggeredGrid(
-			modifier = Modifier.fillMaxHeight(),
+			modifier = Modifier.weight(1f),
 			columns = StaggeredGridCells.Fixed(2),
 			contentPadding = PaddingValues(12.dp),
 			horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -155,7 +166,8 @@ fun SearchScreen(
 			itemsIndexed(searchUiState.searchResult) { index, note ->
 				AioGridNotePreview(
 					note = note,
-					onNoteClick = { onEvent(SearchEvent.OnNoteClick(note.noteId)) },
+					onNoteClick = { onEvent(SearchEvent.OnNoteClick(note.noteId, note.noteType)) },
+					isShowTitle = note.noteType == NoteType.NORMAL,
 					onToolbarItemClick = { toolbar ->
 						when (toolbar) {
 							NoteToolbarItem.DELETE -> onEvent(SearchEvent.DeleteNote(index))

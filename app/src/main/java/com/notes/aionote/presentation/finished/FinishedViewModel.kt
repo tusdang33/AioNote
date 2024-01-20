@@ -31,10 +31,6 @@ class FinishedViewModel @Inject constructor(
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
 	@Dispatcher(AioDispatcher.Main) private val mainDispatcher: CoroutineDispatcher,
 ): RootViewModel<FinishedUiState, FinishedOneTimeEvent, FinishedViewEvent>() {
-	override val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-	
-	}
-	
 	private val _finishedUiState = MutableStateFlow(FinishedUiState())
 	override val uiState: StateFlow<FinishedUiState> = _finishedUiState.asStateFlow()
 	
@@ -60,9 +56,6 @@ class FinishedViewModel @Inject constructor(
 		}
 	}
 	
-	fun failHandle(errorMessage: String? = null) {
-		TODO("Not yet implemented")
-	}
 	
 	override fun reduceUiStateFromOneTimeEvent(
 		uiState: FinishedUiState,

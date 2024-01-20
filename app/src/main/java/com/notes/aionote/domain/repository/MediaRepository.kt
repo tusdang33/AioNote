@@ -14,4 +14,10 @@ interface MediaRepository {
 		userId: String,
 		noteId: String
 	): Resource<String>
+	
+	suspend fun getDownloadUrl(
+		fileName: String,
+		userId: String,
+		noteId: String
+	): Resource<String>
 }

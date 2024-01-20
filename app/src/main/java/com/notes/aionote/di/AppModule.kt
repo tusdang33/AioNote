@@ -18,6 +18,8 @@ import com.notes.aionote.domain.repository.AudioRecorder
 import com.notes.aionote.domain.use_case.authentication.ValidateEmailUseCase
 import com.notes.aionote.domain.use_case.authentication.ValidatePasswordUseCase
 import com.notes.aionote.domain.use_case.authentication.ValidateRetypePasswordUseCase
+import com.notes.aionote.presentation.note.conflicted_note.ResolveConflict
+import com.notes.aionote.presentation.note.conflicted_note.ResolveConflictImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -82,4 +84,10 @@ object AppModule {
 			produceFile = { context.preferencesDataStoreFile(AioConst.PREFERENCE_DATA) }
 		)
 	}
+	
+	@Singleton
+	@Provides
+	fun provideResolveConflict(
+		resolveConflictImpl: ResolveConflictImpl
+	) : ResolveConflict = resolveConflictImpl
 }

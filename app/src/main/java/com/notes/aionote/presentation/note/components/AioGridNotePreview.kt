@@ -1,6 +1,9 @@
 package com.notes.aionote.presentation.note.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -62,8 +66,12 @@ fun AioGridNotePreview(
 	maxHeight: Dp = 224.dp,
 	titleTextColor: Color = AioTheme.neutralColor.black,
 	contentTextColor: Color = AioTheme.neutralColor.dark,
-	onNoteClick: (String) -> Unit,
-	onToolbarItemClick: (NoteToolbarItem) -> Unit,
+	onNoteClick: (String) -> Unit = {},
+	onToolbarItemClick: (NoteToolbarItem) -> Unit = {},
+	isPickingNote: Boolean = false,
+	onPickNote: () -> Unit = {},
+	isNotePicked: Boolean = false,
+	isShowTitle: Boolean = true
 ) {
 	var showToolbar by remember {
 		mutableStateOf(false)
@@ -79,7 +87,9 @@ fun AioGridNotePreview(
 			.padding(12.dp)
 			.combinedClickable(
 				onLongClick = {
-					showToolbar = !showToolbar
+					if (!isPickingNote) {
+						showToolbar = !showToolbar
+					}
 				},
 				onClick = {
 					if (showToolbar) {
@@ -94,23 +104,57 @@ fun AioGridNotePreview(
 			),
 		contentPadding = PaddingValues(0.dp)
 	) {
+		if (isPickingNote) {
+			Box(
+				modifier = Modifier
+					.clip(CircleShape)
+					.size(15.dp)
+					.border(1.dp, AioTheme.neutralColor.black, CircleShape)
+					.padding(2.dp)
+					.align(Alignment.TopEnd)
+					.clickable {
+						onPickNote.invoke()
+					}
+					.then(modifier),
+				contentAlignment = Alignment.Center
+			) {
+				if (isNotePicked) {
+					Box(
+						modifier = Modifier
+							.clip(CircleShape)
+							.background(AioTheme.successColor.base),
+						contentAlignment = Alignment.Center
+					) {
+						Icon(
+							painter = painterResource(id = R.drawable.check_outline),
+							contentDescription = null,
+							tint = AioTheme.neutralColor.white
+						)
+					}
+				}
+			}
+		}
+		
 		Column {
 			Column(
 				modifier = Modifier
 					.fillMaxWidth()
 					.requiredHeightIn(max = maxHeight)
 					.onGloballyPositioned { coordinates ->
-						if (with(localDensity) { coordinates.size.height.toDp() } <= maxHeight - (totalItem*5).dp ) {
+						if (with(localDensity) { coordinates.size.height.toDp() } <= maxHeight - (totalItem * 5).dp) {
 							++totalItem
 						}
 					},
 				horizontalAlignment = Alignment.Start,
 				verticalArrangement = Arrangement.spacedBy(5.dp)
 			) {
-				Text(
-					text = note.title ?: "",
-					style = AioTheme.mediumTypography.lg.copy(color = titleTextColor)
-				)
+				if (isShowTitle) {
+					Text(
+						text = note.title ?: stringResource(id = R.string.untitled),
+						style = AioTheme.mediumTypography.lg.copy(color = titleTextColor)
+					)
+				}
+				
 				note.notes.take(totalItem).forEach { noteContent ->
 					when (noteContent) {
 						is TextNote -> {
@@ -228,6 +272,6 @@ private fun PreviewAioNotePreview() {
 					)
 			),
 			onNoteClick = {}
-		) {}
+		)
 	}
 }

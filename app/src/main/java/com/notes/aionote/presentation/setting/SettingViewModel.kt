@@ -1,5 +1,6 @@
 package com.notes.aionote.presentation.setting
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -25,7 +26,6 @@ import com.notes.aionote.domain.repository.AuthRepository
 import com.notes.aionote.worker.SyncWork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,8 +44,6 @@ class SettingViewModel @Inject constructor(
 	@Dispatcher(AioDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
 ):
 	RootViewModel<SettingUiState, SettingOneTimeEvent, SettingEvent>() {
-	override val coroutineExceptionHandler: CoroutineExceptionHandler
-		get() = CoroutineExceptionHandler { _, _ -> }
 	
 	private val _settingUiState = MutableStateFlow(SettingUiState())
 	override val uiState: StateFlow<SettingUiState> = _settingUiState.asStateFlow()
@@ -95,12 +93,9 @@ class SettingViewModel @Inject constructor(
 					)
 				}
 			}
-			
 		}
 	}
 	
-	private fun failHandle(errorMessage: String? = null) {
-	}
 	
 	override fun reduceUiStateFromOneTimeEvent(
 		uiState: SettingUiState,
@@ -173,8 +168,8 @@ class SettingViewModel @Inject constructor(
 				Data.Builder()
 					.putString(FirebaseConst.FIREBASE_SYNC_USER_ID, userId)
 					.build()
-			)
-			.build()
+			).build()
+		
 		instanceWorkManager.beginUniqueWork(
 			AioConst.SYNC_WORK,
 			ExistingWorkPolicy.REPLACE,
@@ -192,7 +187,6 @@ class SettingViewModel @Inject constructor(
 	}
 	
 	private fun logout() {
-		syncData(_settingUiState.value.userId)
 		viewModelScope.launch(ioDispatcher + NonCancellable) {
 			authRepository.logout().success {
 				sendEvent(SettingOneTimeEvent.OnLogout)

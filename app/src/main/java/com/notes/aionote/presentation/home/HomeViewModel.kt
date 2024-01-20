@@ -32,7 +32,6 @@ import com.notes.aionote.presentation.note.NoteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,8 +53,6 @@ class HomeViewModel @Inject constructor(
 	private val dataStore: DataStore<Preferences>,
 ): RootViewModel<HomeUiState, HomeOneTimeEvent, HomeEvent>() {
 	private val filter: String? = savedStateHandle["filterId"]
-	
-	override val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { _, _ -> }
 	
 	private val _homeUiState = MutableStateFlow(HomeUiState())
 	override val uiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
@@ -201,7 +198,7 @@ class HomeViewModel @Inject constructor(
 						set(noteContentIndex, checkNote.copy(checked = checked))
 					}
 				}.map { it.toNoteContentEntity() }.toRealmList()
-				deadLine = prepareTask.deadLine
+				deadline = prepareTask.deadLine
 				noteType = NoteType.TASK.ordinal
 			}
 			noteRepository.updateNote(noteEntity = noteEntity)
